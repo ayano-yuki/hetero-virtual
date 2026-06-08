@@ -1,19 +1,20 @@
-## 共通設定
+## General Settings
 
-- 回答は日本語で行ってください
-- 変更前に既存実装、README、を確認してください
-- 既存の命名、構成、ライブラリを優先してください
-- 依頼と無関係なリファクタはしないでください
-- 既存の未コミット変更はユーザーの作業として扱い、勝手に戻さないでください
-- コード変更を伴う実装前に計画を考え、それを共有・承認後進めてください
-  - 承認後、計画を変更する場合はその都度許可を求めてください
-- ファイル変更を行った場合、終了時に LOG.md を更新し、Gitコミットの許可を求めてください
-  - LOG.mdの構成は下記のようにしてください
-    - 実装の概略を一文にまとめ、それをセクションタイトルとしてつかってください
-    - 実装内容の詳細、変更ファイルをセクションに記載してください
+- Respond in Japanese.
+- Before making changes, review the existing implementation and README.
+- Prefer the existing naming, structure, and libraries.
+- Do not perform refactoring unrelated to the request.
+- Treat existing uncommitted changes as the user's work, and do not revert them without permission.
+- Before implementing changes that involve code modifications, create a plan, share it, and proceed only after approval.
+  - If the plan needs to change after approval, ask for permission each time.
+- If any file changes are made, update `LOG.md` at the end and ask for permission to create a Git commit.
+  - Structure `LOG.md` as follows:
+    - Summarize the implementation in one sentence and use it as the section title.
+    - Include implementation details and changed files in the section.
 
-## Git操作
-- コミットする前に差分を確認してください
-- 一回当たりのコミット量はレビューがしやすい量にしてください
-- コミットメッセージは変更内容が分かる粒度にしてください
-- コミットメッセージには適切なプレフィックスをつけてください
+## Git Operations
+
+- Review the diff before committing.
+- Keep each commit small enough to be easy to review.
+- Use commit messages with enough detail to clearly describe the changes.
+- Add an appropriate prefix to each commit message.
