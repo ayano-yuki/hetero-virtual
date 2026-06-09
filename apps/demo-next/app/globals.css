@@ -1,0 +1,241 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: #08111f;
+  color: #eef5ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgb(42 113 151 / 28%), transparent 32rem),
+    linear-gradient(160deg, #08111f 0%, #0d1727 55%, #101827 100%);
+}
+
+a {
+  color: inherit;
+}
+
+.pageShell {
+  width: min(1120px, calc(100% - 32px));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 72px 0;
+}
+
+.hero {
+  max-width: 760px;
+  padding: 64px 0 72px;
+}
+
+.eyebrow,
+.panelLabel {
+  margin: 0 0 12px;
+  color: #67e8f9;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  max-width: 900px;
+  margin-bottom: 24px;
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+}
+
+h2 {
+  margin-bottom: 0;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  letter-spacing: -0.04em;
+}
+
+.lede {
+  max-width: 680px;
+  margin-bottom: 32px;
+  color: #b9c7da;
+  font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+  line-height: 1.7;
+}
+
+.primaryLink,
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.primaryLink {
+  padding: 0 22px;
+  background: #67e8f9;
+  color: #07111f;
+}
+
+.secondaryLink {
+  padding: 0 18px;
+  border: 1px solid #33465e;
+  color: #d8e6f8;
+}
+
+.packageGrid,
+.scenarioGrid,
+.metricsGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.packageGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.panel,
+.scenarioCard,
+.metricCard {
+  border: 1px solid rgb(130 165 203 / 22%);
+  border-radius: 20px;
+  background: rgb(12 27 45 / 78%);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 18%);
+}
+
+.panel {
+  padding: 28px;
+}
+
+.panel code {
+  display: block;
+  margin-bottom: 18px;
+  color: #f8fafc;
+  font-size: 1.2rem;
+}
+
+.panel p:last-child,
+.scenarioCard p {
+  margin-bottom: 0;
+  color: #9eb0c7;
+  line-height: 1.6;
+}
+
+.benchmarkHeader,
+.sectionHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.benchmarkHeader {
+  padding-bottom: 48px;
+}
+
+.benchmarkHeader h1 {
+  font-size: clamp(3rem, 8vw, 5.5rem);
+}
+
+.metricsGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metricCard {
+  padding: 22px;
+}
+
+.metricCard p {
+  min-height: 42px;
+  margin-bottom: 18px;
+  color: #9eb0c7;
+}
+
+.metricCard strong {
+  color: #67e8f9;
+  font-size: 1.4rem;
+}
+
+.scenarioSection {
+  padding-top: 72px;
+}
+
+.sectionHeading {
+  align-items: flex-end;
+  margin-bottom: 28px;
+}
+
+.phaseBadge,
+.statusBadge {
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.phaseBadge {
+  padding: 8px 12px;
+  background: #67e8f9;
+  color: #07111f;
+}
+
+.scenarioGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.scenarioCard {
+  position: relative;
+  min-height: 190px;
+  padding: 28px;
+}
+
+.scenarioCard strong {
+  display: block;
+  margin-top: 42px;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  letter-spacing: -0.05em;
+}
+
+.statusBadge {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  padding: 6px 9px;
+  background: rgb(103 232 249 / 12%);
+  color: #67e8f9;
+}
+
+@media (max-width: 760px) {
+  .pageShell {
+    padding: 40px 0;
+  }
+
+  .hero {
+    padding-top: 32px;
+  }
+
+  .packageGrid,
+  .scenarioGrid,
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .benchmarkHeader,
+  .sectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

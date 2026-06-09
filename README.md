@@ -33,6 +33,30 @@ Then open:
 http://localhost:3000
 ```
 
+The benchmark foundation is available at:
+
+```txt
+http://localhost:3000/benchmark
+```
+
+## Workspace
+
+```txt
+apps/
+  demo-next/   Next.js demo and benchmark pages
+packages/
+  core/        Framework-independent virtualizer core
+  react/       React and DOM integration
+```
+
+Useful commands:
+
+```bash
+pnpm test
+pnpm typecheck
+pnpm build
+```
+
 ## Notes
 
 This repository is a prototype design for a measurable Next.js demo rather than a polished production package.

@@ -18,13 +18,13 @@ Status: experimental prototype
 
 まずは demo を主戦場にする。API の綺麗さより、性能と anchor correctness の検証を優先する。
 
-- [ ] pnpm workspace を作る
-- [ ] Next.js demo app を作る
-- [ ] internal core package を作る
-- [ ] internal React package を作る
-- [ ] TypeScript 設定を共有する
-- [ ] Vitest を core 用に入れる
-- [ ] basic benchmark page を用意する
+- [x] pnpm workspace を作る
+- [x] Next.js demo app を作る
+- [x] internal core package を作る
+- [x] internal React package を作る
+- [x] TypeScript 設定を共有する
+- [x] Vitest を core 用に入れる
+- [x] basic benchmark page を用意する
 
 初期構成:
 
