@@ -44,16 +44,16 @@ tsconfig.base.json
 
 React に依存しない core を先に固める。ここでは DOM や hooks よりも、offset / height / anchor の正しさを見る。
 
-- [ ] `ChunkedHeightTree` を実装する
-- [ ] `FenwickTree` または同等の高さ集計構造を実装する
-- [ ] `append(items)` を実装する
-- [ ] `prepend(items)` を実装する
-- [ ] `updateHeight(id, height)` を実装する
-- [ ] `offsetOf(id)` を実装する
-- [ ] `findItemAtOffset(offset)` を実装する
-- [ ] `totalHeight()` を実装する
-- [ ] core unit tests を追加する
-- [ ] prepend 後も anchor item の visual position が保たれることをテストする
+- [x] `ChunkedHeightTree` を実装する
+- [x] `FenwickTree` または同等の高さ集計構造を実装する
+- [x] `append(items)` を実装する
+- [x] `prepend(items)` を実装する
+- [x] `updateHeight(id, height)` を実装する
+- [x] `offsetOf(id)` を実装する
+- [x] `findItemAtOffset(offset)` を実装する
+- [x] `totalHeight()` を実装する
+- [x] core unit tests を追加する
+- [x] prepend 後も anchor item の visual position が保たれることをテストする
 
 ## Phase 3: Anchor And Range
 
