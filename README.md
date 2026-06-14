@@ -39,6 +39,10 @@ The benchmark foundation is available at:
 http://localhost:3000/benchmark
 ```
 
+The benchmark page includes a live placeholder virtualizer with 50,000
+variable-height rows, prepend anchor preservation, viewport shift metrics, and
+a fast-scroll scenario.
+
 ## Workspace
 
 ```txt

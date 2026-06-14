@@ -77,3 +77,29 @@ Anchor の capture/restore、viewport shift 計測、速度と方向に応じた
 - `packages/core/src/index.test.ts`
 - `Todo.md`
 - `LOG.md`
+
+# Phase 4 の placeholder virtualizer demo を実装
+
+50,000件の可変高さplaceholderをbounded DOMで描画し、prepend anchor補正、viewport shift表示、fast scrollを検証できるNext.js demoを追加した。
+
+## 実装詳細
+
+- `/benchmark` に50,000件の決定的な可変高さplaceholderデータを追加
+- `ChunkedHeightTree` と `RangeCalculator` からvisible rangeを計算するdemo専用virtualizerを追加
+- top spacer、visible placeholders、bottom spacerで総高さを表現し、mounted DOM数を制限
+- scroll eventでは位置と速度だけを収集し、`requestAnimationFrame`でrangeを更新
+- 1,000件ずつ追加するprepend操作と`AnchorManager`によるscrollTop補正を追加
+- prepend前後のanchor visual positionからviewport shift pxを計測して表示
+- total items、rendered items、viewport shift、scroll velocityのlive metricsを追加
+- 高速な双方向スクロールを自動実行・停止できるscenarioを追加
+- READMEにlive placeholder virtualizerの利用内容を追記
+- TodoのPhase 4を完了状態へ更新
+
+## 変更ファイル
+
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `apps/demo-next/app/benchmark/page.tsx`
+- `apps/demo-next/app/globals.css`
+- `README.md`
+- `Todo.md`
+- `LOG.md`

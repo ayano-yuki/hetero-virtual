@@ -1,5 +1,7 @@
 import Link from "next/link"
 
+import { PlaceholderVirtualizer } from "./PlaceholderVirtualizer"
+
 const scenarios = [
   {
     count: "100,000",
@@ -56,13 +58,15 @@ export default function BenchmarkPage() {
         ))}
       </section>
 
+      <PlaceholderVirtualizer />
+
       <section className="scenarioSection">
         <div className="sectionHeading">
           <div>
             <p className="eyebrow">Initial suite</p>
             <h2>Benchmark scenarios</h2>
           </div>
-          <span className="phaseBadge">Phase 1</span>
+          <span className="phaseBadge">Phase 4</span>
         </div>
 
         <div className="scenarioGrid">
