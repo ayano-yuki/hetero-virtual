@@ -167,3 +167,37 @@ Anchor の capture/restore、viewport shift 計測、速度と方向に応じた
 - `README.md`
 - `Todo.md`
 - `LOG.md`
+
+# Render scheduler の再描画ループを修正
+
+表示対象とlow-end設定をref経由で参照してscheduler callbackを安定化し、render level更新によるtask再登録の連鎖を防止した。
+
+## 実装詳細
+
+- 最新のvisible itemとlow-end modeをrefへ保持
+- render task登録とqueue処理のcallbackから変化しやすい配列参照を除外
+- task再登録effectを表示範囲、データ、budgetの実変更時に限定
+- scroll mode遷移時のtask再登録をevent handlerから明示的に実行
+- scroll modeの表示更新をrequestAnimationFrameへ遅延し、scroll event中の同期更新を防止
+- render queue指標をscheduler frame側だけで更新し、task登録中の同期更新を防止
+- CPU throttle環境で発生した`Maximum update depth exceeded`の更新ループを防止
+
+## 変更ファイル
+
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `LOG.md`
+
+# CPU throttle 4x の性能基準達成を確認
+
+Chrome CPU throttle 4xとlow-end 4ms budgetでfast scrollを計測し、p95 JS frame time 6ms以下とviewport shift 1px未満を確認した。
+
+## 実装詳細
+
+- Phase 6のCPU throttle 4x計測項目を完了
+- North Starのp95 JS frame time 6ms以下の性能目標を完了
+- viewport shiftが1px未満であることを実ブラウザで確認
+
+## 変更ファイル
+
+- `Todo.md`
+- `LOG.md`

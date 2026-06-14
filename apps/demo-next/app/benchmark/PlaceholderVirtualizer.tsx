@@ -82,6 +82,7 @@ export function PlaceholderVirtualizer() {
   const rangeFrameRef = useRef<number | null>(null)
   const measurementFrameRef = useRef<number | null>(null)
   const renderFrameRef = useRef<number | null>(null)
+  const scrollModeFrameRef = useRef<number | null>(null)
   const fastScrollFrameRef = useRef<number | null>(null)
   const scrollEndTimeoutRef = useRef<number | null>(null)
   const idleTimeoutRef = useRef<number | null>(null)
@@ -93,9 +94,13 @@ export function PlaceholderVirtualizer() {
     new Map<string, (node: HTMLDivElement | null) => void>(),
   )
   const renderWindowRef = useRef<RenderWindow | null>(null)
+  const visibleItemsRef = useRef<PlaceholderItem[]>([])
   const previousScrollRef = useRef({ top: 0, time: 0 })
   const lastScrollTimeRef = useRef(0)
   const scrollModeRef = useRef<ScrollMode>("idle")
+  const lowEndModeRef = useRef(false)
+  const renderQueueSizeRef = useRef(0)
+  const hydratedCountRef = useRef(0)
   const frameSamplesRef = useRef<number[]>([])
   const latestScrollRef = useRef({
     direction: "none" as ScrollDirection,
@@ -136,6 +141,8 @@ export function PlaceholderVirtualizer() {
       runtime.items.slice(renderWindow.startIndex, renderWindow.endIndex + 1),
     [dataVersion, renderWindow, runtime],
   )
+  visibleItemsRef.current = visibleItems
+  lowEndModeRef.current = lowEndMode
   const imageStats = runtime.heightEstimator.getStats("image")
 
   const updateRenderWindow = useCallback(
@@ -159,9 +166,42 @@ export function PlaceholderVirtualizer() {
     [runtime],
   )
 
-  const updateScrollMode = useCallback((mode: ScrollMode) => {
+  const updateScrollMode = useCallback((mode: ScrollMode): boolean => {
+    if (scrollModeRef.current === mode) {
+      return false
+    }
+
     scrollModeRef.current = mode
-    setScrollMode(mode)
+
+    if (scrollModeFrameRef.current === null) {
+      scrollModeFrameRef.current = requestAnimationFrame(() => {
+        scrollModeFrameRef.current = null
+        const nextMode = scrollModeRef.current
+        setScrollMode((currentMode) =>
+          currentMode === nextMode ? currentMode : nextMode,
+        )
+      })
+    }
+
+    return true
+  }, [])
+
+  const updateRenderQueueSize = useCallback((size: number) => {
+    if (renderQueueSizeRef.current === size) {
+      return
+    }
+
+    renderQueueSizeRef.current = size
+    setRenderQueueSize(size)
+  }, [])
+
+  const updateHydratedCount = useCallback((count: number) => {
+    if (hydratedCountRef.current === count) {
+      return
+    }
+
+    hydratedCountRef.current = count
+    setHydratedCount(count)
   }, [])
 
   const scheduleRenderFrame = useCallback(() => {
@@ -189,7 +229,7 @@ export function PlaceholderVirtualizer() {
 
     runtime.renderScheduler.clearTasks()
 
-    for (const item of visibleItems) {
+    for (const item of visibleItemsRef.current) {
       const itemOffset = runtime.heightTree.offsetOf(item.id)
 
       if (itemOffset === undefined) {
@@ -225,9 +265,8 @@ export function PlaceholderVirtualizer() {
       })
     }
 
-    setRenderQueueSize(runtime.renderScheduler.size)
     scheduleRenderFrame()
-  }, [runtime, scheduleRenderFrame, visibleItems])
+  }, [runtime, scheduleRenderFrame])
 
   const processRenderQueue = useCallback(() => {
     renderFrameRef.current = null
@@ -235,7 +274,7 @@ export function PlaceholderVirtualizer() {
     const frameStartedAt = performance.now()
     const result = runtime.renderScheduler.process({
       apply: () => undefined,
-      lowEnd: lowEndMode,
+      lowEnd: lowEndModeRef.current,
       mode: scrollModeRef.current,
     })
     const frameTime = performance.now() - frameStartedAt
@@ -249,9 +288,9 @@ export function PlaceholderVirtualizer() {
 
     setLastFrameTime(frameTime)
     setP95FrameTime(percentile(samples, 0.95))
-    setRenderQueueSize(result.remainingCount)
-    setHydratedCount(
-      visibleItems.filter(
+    updateRenderQueueSize(result.remainingCount)
+    updateHydratedCount(
+      visibleItemsRef.current.filter(
         (item) => runtime.renderScheduler.getLevel(item.id) >= 2,
       ).length,
     )
@@ -260,7 +299,12 @@ export function PlaceholderVirtualizer() {
       setRenderVersion((version) => version + 1)
       scheduleRenderFrame()
     }
-  }, [lowEndMode, runtime, scheduleRenderFrame, visibleItems])
+  }, [
+    runtime,
+    scheduleRenderFrame,
+    updateHydratedCount,
+    updateRenderQueueSize,
+  ])
   processRenderQueueRef.current = processRenderQueue
 
   const flushMeasurements = useCallback(() => {
@@ -412,7 +456,9 @@ export function PlaceholderVirtualizer() {
       top: scrollRoot.scrollTop,
       velocity: nextVelocity,
     }
-    updateScrollMode(nextMode)
+    if (updateScrollMode(nextMode)) {
+      enqueueVisibleRenderTasks()
+    }
 
     if (scrollEndTimeoutRef.current !== null) {
       window.clearTimeout(scrollEndTimeoutRef.current)
@@ -687,7 +733,8 @@ export function PlaceholderVirtualizer() {
     dataVersion,
     enqueueVisibleRenderTasks,
     lowEndMode,
-    scrollMode,
+    renderWindow.endIndex,
+    renderWindow.startIndex,
   ])
 
   useEffect(() => {
@@ -732,6 +779,10 @@ export function PlaceholderVirtualizer() {
 
       if (renderFrameRef.current !== null) {
         cancelAnimationFrame(renderFrameRef.current)
+      }
+
+      if (scrollModeFrameRef.current !== null) {
+        cancelAnimationFrame(scrollModeFrameRef.current)
       }
 
       if (scrollEndTimeoutRef.current !== null) {

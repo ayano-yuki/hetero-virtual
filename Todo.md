@@ -11,7 +11,7 @@ Status: experimental prototype
 - [ ] Next.js 上で 50,000 件の text / markdown / image / chart / tool-result 混在リストを双方向スクロールできる
 - [ ] prepend 時の viewport shift を 1px 未満に抑える
 - [ ] 高さ再測定時の viewport shift を 1px 未満に抑える
-- [ ] Chrome CPU throttle 4x で fast scroll 時の p95 JS frame time を 6ms 以下に抑える
+- [x] Chrome CPU throttle 4x で fast scroll 時の p95 JS frame time を 6ms 以下に抑える
 - [ ] heavy item を遅延しても viewport が空白化しない
 
 ## Phase 1: Demo-First Foundation
@@ -101,7 +101,7 @@ heavy item を一気に描画せず、scroll 中の frame budget を守る。
 - [x] scroll mode を定義する
 - [x] progressive hydration を実装する
 - [x] viewport 付近を優先して render level を上げる
-- [ ] CPU throttle 4x で p95 JS frame time を計測する
+- [x] CPU throttle 4x で p95 JS frame time を計測する
 
 ## Phase 7: Adapter Model
 
