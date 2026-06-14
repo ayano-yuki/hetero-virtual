@@ -5,6 +5,8 @@ import {
   ChunkedHeightTree,
   CORE_PACKAGE_NAME,
   FenwickTree,
+  HeightEstimator,
+  MeasurementQueue,
   RangeCalculator,
   measureViewportShift,
 } from "./index"
@@ -17,5 +19,7 @@ describe("@hetero-virtual/core", () => {
     expect(AnchorManager).toBeTypeOf("function")
     expect(RangeCalculator).toBeTypeOf("function")
     expect(measureViewportShift).toBeTypeOf("function")
+    expect(MeasurementQueue).toBeTypeOf("function")
+    expect(HeightEstimator).toBeTypeOf("function")
   })
 })

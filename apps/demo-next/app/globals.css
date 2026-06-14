@@ -220,6 +220,12 @@ h2 {
   border-color: #67e8f9;
 }
 
+.virtualizerActions button:disabled {
+  border-color: #263c57;
+  color: #71839a;
+  cursor: default;
+}
+
 .liveMetrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -301,6 +307,13 @@ h2 {
 
 .placeholderItem--blue {
   background: linear-gradient(90deg, rgb(96 165 250 / 11%), transparent 42%);
+}
+
+.placeholderItem[data-item-type="image"] {
+  border-left: 3px solid #fbbf24;
+  background:
+    linear-gradient(90deg, rgb(251 191 36 / 16%), transparent 48%),
+    #0b1524;
 }
 
 .sectionHeading {

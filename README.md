@@ -41,7 +41,9 @@ http://localhost:3000/benchmark
 
 The benchmark page includes a live placeholder virtualizer with 50,000
 variable-height rows, prepend anchor preservation, viewport shift metrics, and
-a fast-scroll scenario.
+a fast-scroll scenario. Visible rows are measured with `ResizeObserver`; height
+corrections restore the viewport anchor, update type-specific estimates, and
+can be exercised with the delayed-image control.
 
 ## Workspace
 

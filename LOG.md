@@ -103,3 +103,36 @@ Anchor の capture/restore、viewport shift 計測、速度と方向に応じた
 - `README.md`
 - `Todo.md`
 - `LOG.md`
+
+# Phase 5 の measurement pipeline と resize correction を実装
+
+測定queue、type別高さ推定、ResizeObserver、anchor restoreを接続し、遅延画像による高さ変化をviewport shift付きで検証できるようにした。
+
+## 実装詳細
+
+- ID単位の最新値を重複排除し、priority順・frame budget内で処理する`MeasurementQueue`を追加
+- item typeごとにbias、variance、平均絶対誤差を更新する`HeightEstimator`を追加
+- 複数height correction後もanchorのvisual positionを維持するcore integration testを追加
+- visible rowを`ResizeObserver`で監視し、border-boxの実測高さをmeasurement queueへ登録
+- queue flush前にanchorをcaptureし、height tree更新後にscrollTopをrestore
+- 1回のflushで複数測定をまとめ、残ったqueueを次frameへ継続
+- textとimageの高さ推定を分離し、新規prepend itemへ学習済みbiasを適用
+- delayed image controlで画像相当rowを遅延拡張するdemo scenarioを追加
+- measurement queue長、補正件数、image estimate MAE、resize shiftをlive表示
+- READMEにmeasurement pipelineの操作内容を追記
+- TodoのPhase 5を完了状態へ更新
+
+## 変更ファイル
+
+- `packages/core/src/MeasurementQueue.ts`
+- `packages/core/src/MeasurementQueue.test.ts`
+- `packages/core/src/HeightEstimator.ts`
+- `packages/core/src/HeightEstimator.test.ts`
+- `packages/core/src/MeasurementPipeline.test.ts`
+- `packages/core/src/index.ts`
+- `packages/core/src/index.test.ts`
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `apps/demo-next/app/globals.css`
+- `README.md`
+- `Todo.md`
+- `LOG.md`

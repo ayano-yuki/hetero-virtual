@@ -3,6 +3,8 @@
 import {
   AnchorManager,
   ChunkedHeightTree,
+  HeightEstimator,
+  MeasurementQueue,
   RangeCalculator,
   measureViewportShift,
   type Anchor,
@@ -22,14 +24,21 @@ const PREPEND_ITEM_COUNT = 1_000
 const FALLBACK_VIEWPORT_HEIGHT = 640
 const FAST_SCROLL_STEP_PX = 1_100
 const FAST_SCROLL_FRAME_COUNT = 90
+const MEASUREMENT_BUDGET_MS = 4
 
 type PlaceholderTone = "cyan" | "violet" | "amber" | "blue"
+type PlaceholderType = "text" | "image"
+type RestoreReason = "measurement" | "prepend"
 
 type PlaceholderItem = {
   id: string
   height: number
+  actualHeight: number
+  baseHeight: number
   label: string
+  loaded: boolean
   tone: PlaceholderTone
+  type: PlaceholderType
 }
 
 type RenderWindow = {
@@ -42,6 +51,7 @@ type RenderWindow = {
 type PendingAnchorRestore = {
   anchor: Anchor
   anchorOffsetBefore: number
+  reason: RestoreReason
   scrollTopBefore: number
   targetScrollTop: number
 }
@@ -52,13 +62,23 @@ type Runtime = {
   heightTree: ChunkedHeightTree
   anchorManager: AnchorManager
   rangeCalculator: RangeCalculator
+  measurementQueue: MeasurementQueue
+  heightEstimator: HeightEstimator
 }
 
 export function PlaceholderVirtualizer() {
   const scrollRootRef = useRef<HTMLDivElement | null>(null)
   const runtimeRef = useRef<Runtime | null>(null)
-  const frameRef = useRef<number | null>(null)
+  const rangeFrameRef = useRef<number | null>(null)
+  const measurementFrameRef = useRef<number | null>(null)
   const fastScrollFrameRef = useRef<number | null>(null)
+  const resizeObserverRef = useRef<ResizeObserver | null>(null)
+  const scheduleMeasurementFlushRef = useRef<() => void>(() => undefined)
+  const measuredElementsRef = useRef(new Map<string, HTMLDivElement>())
+  const measureRefsRef = useRef(
+    new Map<string, (node: HTMLDivElement | null) => void>(),
+  )
+  const renderWindowRef = useRef<RenderWindow | null>(null)
   const previousScrollRef = useRef({ top: 0, time: 0 })
   const latestScrollRef = useRef({
     direction: "none" as ScrollDirection,
@@ -69,7 +89,7 @@ export function PlaceholderVirtualizer() {
   const prependCursorRef = useRef(-1)
 
   if (!runtimeRef.current) {
-    runtimeRef.current = createRuntime(createPlaceholderItems(0, INITIAL_ITEM_COUNT))
+    runtimeRef.current = createRuntime(0, INITIAL_ITEM_COUNT)
   }
 
   const runtime = runtimeRef.current
@@ -77,15 +97,22 @@ export function PlaceholderVirtualizer() {
   const [renderWindow, setRenderWindow] = useState<RenderWindow>(() =>
     computeRenderWindow(runtime, 0, FALLBACK_VIEWPORT_HEIGHT, 0, "none"),
   )
-  const [viewportShift, setViewportShift] = useState(0)
+  const [prependViewportShift, setPrependViewportShift] = useState(0)
+  const [resizeViewportShift, setResizeViewportShift] = useState(0)
   const [velocity, setVelocity] = useState(0)
   const [isFastScrolling, setIsFastScrolling] = useState(false)
+  const [measurementQueueSize, setMeasurementQueueSize] = useState(0)
+  const [measurementCount, setMeasurementCount] = useState(0)
+  const [imagesLoaded, setImagesLoaded] = useState(false)
+
+  renderWindowRef.current = renderWindow
 
   const visibleItems = useMemo(
     () =>
       runtime.items.slice(renderWindow.startIndex, renderWindow.endIndex + 1),
     [dataVersion, renderWindow, runtime],
   )
+  const imageStats = runtime.heightEstimator.getStats("image")
 
   const updateRenderWindow = useCallback(
     (
@@ -108,13 +135,108 @@ export function PlaceholderVirtualizer() {
     [runtime],
   )
 
-  const scheduleRangeUpdate = useCallback(() => {
-    if (frameRef.current !== null) {
+  const flushMeasurements = useCallback(() => {
+    measurementFrameRef.current = null
+
+    const scrollRoot = scrollRootRef.current
+
+    if (
+      !scrollRoot ||
+      runtime.measurementQueue.size === 0 ||
+      pendingRestoreRef.current
+    ) {
       return
     }
 
-    frameRef.current = requestAnimationFrame(() => {
-      frameRef.current = null
+    const anchor = runtime.anchorManager.captureAnchor(scrollRoot.scrollTop)
+    const anchorOffsetBefore = anchor
+      ? runtime.heightTree.offsetOf(anchor.itemId)
+      : undefined
+    let correctedCount = 0
+
+    runtime.measurementQueue.flush(
+      (measurement) => {
+        const itemIndex = runtime.indexById.get(measurement.id)
+
+        if (itemIndex === undefined) {
+          return
+        }
+
+        const item = runtime.items[itemIndex]
+
+        if (Math.abs(item.height - measurement.height) < 0.5) {
+          return
+        }
+
+        runtime.heightEstimator.update(
+          item.type,
+          item.height,
+          measurement.height,
+        )
+        item.height = measurement.height
+        runtime.heightTree.updateHeight(item.id, measurement.height)
+        correctedCount += 1
+      },
+      { budgetMs: MEASUREMENT_BUDGET_MS },
+    )
+
+    setMeasurementQueueSize(runtime.measurementQueue.size)
+
+    if (correctedCount === 0) {
+      if (runtime.measurementQueue.size > 0) {
+        scheduleMeasurementFlushRef.current()
+      }
+
+      return
+    }
+
+    setMeasurementCount((count) => count + correctedCount)
+
+    if (anchor && anchorOffsetBefore !== undefined) {
+      const targetScrollTop = runtime.anchorManager.restoreAnchor(anchor)
+
+      if (targetScrollTop !== undefined) {
+        pendingRestoreRef.current = {
+          anchor,
+          anchorOffsetBefore,
+          reason: "measurement",
+          scrollTopBefore: scrollRoot.scrollTop,
+          targetScrollTop,
+        }
+      }
+    }
+
+    const nextScrollTop =
+      pendingRestoreRef.current?.targetScrollTop ?? scrollRoot.scrollTop
+    setRenderWindow(
+      computeRenderWindow(
+        runtime,
+        nextScrollTop,
+        scrollRoot.clientHeight,
+        0,
+        "none",
+      ),
+    )
+    setVelocity(0)
+    setDataVersion((version) => version + 1)
+  }, [runtime])
+
+  const scheduleMeasurementFlush = useCallback(() => {
+    if (measurementFrameRef.current !== null) {
+      return
+    }
+
+    measurementFrameRef.current = requestAnimationFrame(flushMeasurements)
+  }, [flushMeasurements])
+  scheduleMeasurementFlushRef.current = scheduleMeasurementFlush
+
+  const scheduleRangeUpdate = useCallback(() => {
+    if (rangeFrameRef.current !== null) {
+      return
+    }
+
+    rangeFrameRef.current = requestAnimationFrame(() => {
+      rangeFrameRef.current = null
 
       const scrollRoot = scrollRootRef.current
 
@@ -184,6 +306,8 @@ export function PlaceholderVirtualizer() {
     const prependedItems = createPlaceholderItems(
       firstId,
       PREPEND_ITEM_COUNT,
+      runtime.heightEstimator,
+      imagesLoaded,
     )
     prependCursorRef.current = firstId - 1
 
@@ -200,11 +324,27 @@ export function PlaceholderVirtualizer() {
     pendingRestoreRef.current = {
       anchor,
       anchorOffsetBefore,
+      reason: "prepend",
       scrollTopBefore: scrollRoot.scrollTop,
       targetScrollTop,
     }
     setDataVersion((version) => version + 1)
-  }, [runtime])
+  }, [imagesLoaded, runtime])
+
+  const handleLoadImages = useCallback(() => {
+    if (imagesLoaded) {
+      return
+    }
+
+    for (const item of runtime.items) {
+      if (item.type === "image") {
+        item.loaded = true
+      }
+    }
+
+    setImagesLoaded(true)
+    setDataVersion((version) => version + 1)
+  }, [imagesLoaded, runtime])
 
   const handleFastScroll = useCallback(() => {
     const scrollRoot = scrollRootRef.current
@@ -247,6 +387,31 @@ export function PlaceholderVirtualizer() {
     fastScrollFrameRef.current = requestAnimationFrame(scrollFrame)
   }, [])
 
+  const getMeasureRef = useCallback((id: string) => {
+    const existing = measureRefsRef.current.get(id)
+
+    if (existing) {
+      return existing
+    }
+
+    const measureRef = (node: HTMLDivElement | null) => {
+      const previous = measuredElementsRef.current.get(id)
+
+      if (previous) {
+        resizeObserverRef.current?.unobserve(previous)
+        measuredElementsRef.current.delete(id)
+      }
+
+      if (node) {
+        measuredElementsRef.current.set(id, node)
+        resizeObserverRef.current?.observe(node)
+      }
+    }
+
+    measureRefsRef.current.set(id, measureRef)
+    return measureRef
+  }, [])
+
   useLayoutEffect(() => {
     const pending = pendingRestoreRef.current
     const scrollRoot = scrollRootRef.current
@@ -260,18 +425,22 @@ export function PlaceholderVirtualizer() {
     const anchorOffsetAfter = runtime.heightTree.offsetOf(pending.anchor.itemId)
 
     if (anchorOffsetAfter !== undefined) {
-      setViewportShift(
-        measureViewportShift(
-          {
-            anchorOffset: pending.anchorOffsetBefore,
-            scrollTop: pending.scrollTopBefore,
-          },
-          {
-            anchorOffset: anchorOffsetAfter,
-            scrollTop: scrollRoot.scrollTop,
-          },
-        ),
+      const shift = measureViewportShift(
+        {
+          anchorOffset: pending.anchorOffsetBefore,
+          scrollTop: pending.scrollTopBefore,
+        },
+        {
+          anchorOffset: anchorOffsetAfter,
+          scrollTop: scrollRoot.scrollTop,
+        },
       )
+
+      if (pending.reason === "measurement") {
+        setResizeViewportShift(shift)
+      } else {
+        setPrependViewportShift(shift)
+      }
     }
 
     previousScrollRef.current = {
@@ -290,7 +459,62 @@ export function PlaceholderVirtualizer() {
       "none",
     )
     pendingRestoreRef.current = null
-  }, [dataVersion, runtime, updateRenderWindow])
+
+    if (runtime.measurementQueue.size > 0) {
+      scheduleMeasurementFlush()
+    }
+  }, [
+    dataVersion,
+    runtime,
+    scheduleMeasurementFlush,
+    updateRenderWindow,
+  ])
+
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      const currentWindow = renderWindowRef.current
+      const visibleCenter = currentWindow
+        ? (currentWindow.startIndex + currentWindow.endIndex) / 2
+        : 0
+
+      for (const entry of entries) {
+        const element = entry.target as HTMLDivElement
+        const id = element.dataset.virtualId
+
+        if (!id) {
+          continue
+        }
+
+        const itemIndex = runtime.indexById.get(id)
+
+        if (itemIndex === undefined) {
+          continue
+        }
+
+        runtime.measurementQueue.enqueue({
+          id,
+          height:
+            entry.borderBoxSize?.[0]?.blockSize ??
+            element.getBoundingClientRect().height,
+          priority: Math.max(1, 1_000 - Math.abs(itemIndex - visibleCenter)),
+        })
+      }
+
+      setMeasurementQueueSize(runtime.measurementQueue.size)
+      scheduleMeasurementFlush()
+    })
+
+    resizeObserverRef.current = observer
+
+    for (const element of measuredElementsRef.current.values()) {
+      observer.observe(element)
+    }
+
+    return () => {
+      observer.disconnect()
+      resizeObserverRef.current = null
+    }
+  }, [runtime, scheduleMeasurementFlush])
 
   useEffect(() => {
     const scrollRoot = scrollRootRef.current
@@ -324,8 +548,12 @@ export function PlaceholderVirtualizer() {
     return () => {
       window.removeEventListener("resize", handleResize)
 
-      if (frameRef.current !== null) {
-        cancelAnimationFrame(frameRef.current)
+      if (rangeFrameRef.current !== null) {
+        cancelAnimationFrame(rangeFrameRef.current)
+      }
+
+      if (measurementFrameRef.current !== null) {
+        cancelAnimationFrame(measurementFrameRef.current)
       }
 
       stopFastScroll(fastScrollFrameRef)
@@ -336,12 +564,19 @@ export function PlaceholderVirtualizer() {
     <section className="virtualizerPanel">
       <div className="virtualizerToolbar">
         <div>
-          <p className="eyebrow">Live placeholder virtualizer</p>
-          <h2>50,000 variable-height rows</h2>
+          <p className="eyebrow">Live measurement virtualizer</p>
+          <h2>50,000 estimated and measured rows</h2>
         </div>
         <div className="virtualizerActions">
           <button type="button" onClick={handlePrepend}>
             Prepend {PREPEND_ITEM_COUNT.toLocaleString()}
+          </button>
+          <button
+            type="button"
+            onClick={handleLoadImages}
+            disabled={imagesLoaded}
+          >
+            {imagesLoaded ? "Delayed images loaded" : "Load delayed images"}
           </button>
           <button type="button" onClick={handleFastScroll}>
             {isFastScrolling ? "Stop fast scroll" : "Run fast scroll"}
@@ -355,7 +590,26 @@ export function PlaceholderVirtualizer() {
           value={runtime.items.length.toLocaleString()}
         />
         <Metric label="Rendered items" value={visibleItems.length.toString()} />
-        <Metric label="Viewport shift" value={`${viewportShift.toFixed(2)} px`} />
+        <Metric
+          label="Prepend shift"
+          value={`${prependViewportShift.toFixed(2)} px`}
+        />
+        <Metric
+          label="Resize shift"
+          value={`${resizeViewportShift.toFixed(2)} px`}
+        />
+        <Metric
+          label="Measurement queue"
+          value={measurementQueueSize.toString()}
+        />
+        <Metric
+          label="Measured corrections"
+          value={measurementCount.toLocaleString()}
+        />
+        <Metric
+          label="Image estimate MAE"
+          value={`${imageStats.meanAbsoluteError.toFixed(1)} px`}
+        />
         <Metric label="Scroll velocity" value={`${velocity.toFixed(2)} px/ms`} />
       </div>
 
@@ -368,11 +622,16 @@ export function PlaceholderVirtualizer() {
         {visibleItems.map((item) => (
           <div
             key={item.id}
+            ref={getMeasureRef(item.id)}
+            data-virtual-id={item.id}
+            data-item-type={item.type}
             className={`placeholderItem placeholderItem--${item.tone}`}
-            style={{ height: item.height }}
+            style={{ height: getRenderedHeight(item) }}
           >
             <span>{item.label}</span>
-            <code>{item.height}px</code>
+            <code>
+              {item.type} / {Math.round(item.height)}px
+            </code>
           </div>
         ))}
         <div style={{ height: renderWindow.bottomSpacer }} aria-hidden="true" />
@@ -390,7 +649,14 @@ function Metric({ label, value }: { label: string; value: string }) {
   )
 }
 
-function createRuntime(items: PlaceholderItem[]): Runtime {
+function createRuntime(firstIndex: number, count: number): Runtime {
+  const heightEstimator = new HeightEstimator()
+  const items = createPlaceholderItems(
+    firstIndex,
+    count,
+    heightEstimator,
+    false,
+  )
   const heightTree = new ChunkedHeightTree({ chunkSize: 128 })
   heightTree.append(items)
 
@@ -405,6 +671,8 @@ function createRuntime(items: PlaceholderItem[]): Runtime {
       horizonMs: 120,
       baseViewportRatio: 0.5,
     }),
+    measurementQueue: new MeasurementQueue(),
+    heightEstimator,
   }
 
   rebuildIndex(runtime)
@@ -414,35 +682,40 @@ function createRuntime(items: PlaceholderItem[]): Runtime {
 function createPlaceholderItems(
   firstIndex: number,
   count: number,
+  heightEstimator: HeightEstimator,
+  imagesLoaded: boolean,
 ): PlaceholderItem[] {
   const tones: PlaceholderTone[] = ["cyan", "violet", "amber", "blue"]
 
   return Array.from({ length: count }, (_, offset) => {
     const index = firstIndex + offset
-    const variance = deterministicVariance(index)
-    const height = 44 + variance
+    const normalized = Math.abs(index)
+    const type: PlaceholderType = normalized % 23 === 0 ? "image" : "text"
+    const baseHeight = 52 + ((normalized * 37) % 76)
+    const actualHeight =
+      type === "image"
+        ? baseHeight + 160 + (normalized % 5) * 28
+        : Math.max(36, baseHeight + ((normalized * 13) % 17) - 8)
+    const estimatedHeight = heightEstimator.estimate(type, baseHeight)
 
     return {
       id: `placeholder-${index}`,
-      height,
-      label: `Placeholder ${index.toLocaleString()}`,
-      tone: tones[Math.abs(index) % tones.length],
+      height: estimatedHeight,
+      actualHeight,
+      baseHeight,
+      label:
+        type === "image"
+          ? `Delayed image ${index.toLocaleString()}`
+          : `Placeholder ${index.toLocaleString()}`,
+      loaded: type === "text" || imagesLoaded,
+      tone: tones[normalized % tones.length],
+      type,
     }
   })
 }
 
-function deterministicVariance(index: number): number {
-  const normalized = Math.abs(index)
-
-  if (normalized % 97 === 0) {
-    return 220
-  }
-
-  if (normalized % 23 === 0) {
-    return 96
-  }
-
-  return (normalized * 37) % 52
+function getRenderedHeight(item: PlaceholderItem): number {
+  return item.loaded ? item.actualHeight : item.height
 }
 
 function rebuildIndex(runtime: Runtime): void {

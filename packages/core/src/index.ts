@@ -12,6 +12,16 @@ export {
 } from "./ChunkedHeightTree"
 export { FenwickTree } from "./FenwickTree"
 export {
+  HeightEstimator,
+  type HeightEstimatorOptions,
+  type HeightEstimatorStats,
+} from "./HeightEstimator"
+export {
+  MeasurementQueue,
+  type Measurement,
+  type MeasurementFlushOptions,
+} from "./MeasurementQueue"
+export {
   RangeCalculator,
   type Overscan,
   type RangeCalculatorOptions,
