@@ -260,6 +260,13 @@ h2 {
   white-space: nowrap;
 }
 
+.schedulerNote {
+  margin: -2px 2px 16px;
+  color: #8296af;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
 .placeholderScrollRoot {
   height: min(62vh, 680px);
   min-height: 420px;
@@ -291,6 +298,57 @@ h2 {
 .placeholderItem code {
   flex: 0 0 auto;
   color: #9fb1c8;
+}
+
+.placeholderItem[data-render-level="0"] {
+  color: #6f8198;
+}
+
+.placeholderItem[data-render-level="1"] {
+  color: #a9bad0;
+}
+
+.renderSkeleton {
+  width: min(55%, 360px);
+  height: 12px;
+  border-radius: 999px;
+  background: #253852;
+}
+
+.renderShell {
+  display: grid;
+  width: min(62%, 420px);
+  gap: 8px;
+}
+
+.renderShell i {
+  display: block;
+  height: 9px;
+  border-radius: 999px;
+  background: #314966;
+}
+
+.renderShell i:last-child {
+  width: 68%;
+}
+
+.renderFull {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.imagePreview {
+  display: block;
+  width: 64px;
+  height: 32px;
+  flex: 0 0 auto;
+  border: 1px solid rgb(251 191 36 / 45%);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgb(251 191 36 / 50%), transparent),
+    #213047;
 }
 
 .placeholderItem--cyan {

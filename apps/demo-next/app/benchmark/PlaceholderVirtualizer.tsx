@@ -6,9 +6,14 @@ import {
   HeightEstimator,
   MeasurementQueue,
   RangeCalculator,
+  RenderScheduler,
+  computeRenderPriority,
+  computeScrollMode,
   measureViewportShift,
   type Anchor,
+  type RenderLevel,
   type ScrollDirection,
+  type ScrollMode,
 } from "@hetero-virtual/core"
 import {
   useCallback,
@@ -25,6 +30,9 @@ const FALLBACK_VIEWPORT_HEIGHT = 640
 const FAST_SCROLL_STEP_PX = 1_100
 const FAST_SCROLL_FRAME_COUNT = 90
 const MEASUREMENT_BUDGET_MS = 4
+const SCROLL_END_DELAY_MS = 80
+const SETTLING_DURATION_MS = 160
+const FRAME_SAMPLE_LIMIT = 240
 
 type PlaceholderTone = "cyan" | "violet" | "amber" | "blue"
 type PlaceholderType = "text" | "image"
@@ -39,6 +47,7 @@ type PlaceholderItem = {
   loaded: boolean
   tone: PlaceholderTone
   type: PlaceholderType
+  renderCost: number
 }
 
 type RenderWindow = {
@@ -64,6 +73,7 @@ type Runtime = {
   rangeCalculator: RangeCalculator
   measurementQueue: MeasurementQueue
   heightEstimator: HeightEstimator
+  renderScheduler: RenderScheduler
 }
 
 export function PlaceholderVirtualizer() {
@@ -71,15 +81,22 @@ export function PlaceholderVirtualizer() {
   const runtimeRef = useRef<Runtime | null>(null)
   const rangeFrameRef = useRef<number | null>(null)
   const measurementFrameRef = useRef<number | null>(null)
+  const renderFrameRef = useRef<number | null>(null)
   const fastScrollFrameRef = useRef<number | null>(null)
+  const scrollEndTimeoutRef = useRef<number | null>(null)
+  const idleTimeoutRef = useRef<number | null>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
   const scheduleMeasurementFlushRef = useRef<() => void>(() => undefined)
+  const processRenderQueueRef = useRef<() => void>(() => undefined)
   const measuredElementsRef = useRef(new Map<string, HTMLDivElement>())
   const measureRefsRef = useRef(
     new Map<string, (node: HTMLDivElement | null) => void>(),
   )
   const renderWindowRef = useRef<RenderWindow | null>(null)
   const previousScrollRef = useRef({ top: 0, time: 0 })
+  const lastScrollTimeRef = useRef(0)
+  const scrollModeRef = useRef<ScrollMode>("idle")
+  const frameSamplesRef = useRef<number[]>([])
   const latestScrollRef = useRef({
     direction: "none" as ScrollDirection,
     top: 0,
@@ -104,6 +121,13 @@ export function PlaceholderVirtualizer() {
   const [measurementQueueSize, setMeasurementQueueSize] = useState(0)
   const [measurementCount, setMeasurementCount] = useState(0)
   const [imagesLoaded, setImagesLoaded] = useState(false)
+  const [, setRenderVersion] = useState(0)
+  const [scrollMode, setScrollMode] = useState<ScrollMode>("idle")
+  const [renderQueueSize, setRenderQueueSize] = useState(0)
+  const [hydratedCount, setHydratedCount] = useState(0)
+  const [p95FrameTime, setP95FrameTime] = useState(0)
+  const [lastFrameTime, setLastFrameTime] = useState(0)
+  const [lowEndMode, setLowEndMode] = useState(false)
 
   renderWindowRef.current = renderWindow
 
@@ -134,6 +158,110 @@ export function PlaceholderVirtualizer() {
     },
     [runtime],
   )
+
+  const updateScrollMode = useCallback((mode: ScrollMode) => {
+    scrollModeRef.current = mode
+    setScrollMode(mode)
+  }, [])
+
+  const scheduleRenderFrame = useCallback(() => {
+    if (renderFrameRef.current !== null) {
+      return
+    }
+
+    renderFrameRef.current = requestAnimationFrame(() => {
+      processRenderQueueRef.current()
+    })
+  }, [])
+
+  const enqueueVisibleRenderTasks = useCallback(() => {
+    const scrollRoot = scrollRootRef.current
+
+    if (!scrollRoot) {
+      return
+    }
+
+    const viewportStart = scrollRoot.scrollTop
+    const viewportEnd = viewportStart + scrollRoot.clientHeight
+    const viewportCenter = (viewportStart + viewportEnd) / 2
+    const direction = latestScrollRef.current.direction
+    const anchor = runtime.anchorManager.captureAnchor(viewportStart)
+
+    runtime.renderScheduler.clearTasks()
+
+    for (const item of visibleItems) {
+      const itemOffset = runtime.heightTree.offsetOf(item.id)
+
+      if (itemOffset === undefined) {
+        continue
+      }
+
+      const itemEnd = itemOffset + item.height
+      const isVisible = itemEnd > viewportStart && itemOffset < viewportEnd
+      const distanceFromViewport = isVisible
+        ? 0
+        : itemEnd <= viewportStart
+          ? viewportStart - itemEnd
+          : itemOffset - viewportEnd
+      const isAhead =
+        direction === "down"
+          ? itemOffset >= viewportCenter
+          : direction === "up"
+            ? itemEnd <= viewportCenter
+            : false
+
+      runtime.renderScheduler.enqueue({
+        itemId: item.id,
+        targetLevel: 3,
+        priority: computeRenderPriority({
+          distanceFromViewport,
+          isAhead,
+          isNearAnchor: anchor?.itemId === item.id,
+          isVisible,
+          renderCost: item.renderCost,
+        }),
+        estimatedCost: item.renderCost,
+        heavy: item.type === "image",
+      })
+    }
+
+    setRenderQueueSize(runtime.renderScheduler.size)
+    scheduleRenderFrame()
+  }, [runtime, scheduleRenderFrame, visibleItems])
+
+  const processRenderQueue = useCallback(() => {
+    renderFrameRef.current = null
+
+    const frameStartedAt = performance.now()
+    const result = runtime.renderScheduler.process({
+      apply: () => undefined,
+      lowEnd: lowEndMode,
+      mode: scrollModeRef.current,
+    })
+    const frameTime = performance.now() - frameStartedAt
+    const samples = frameSamplesRef.current
+
+    samples.push(frameTime)
+
+    if (samples.length > FRAME_SAMPLE_LIMIT) {
+      samples.shift()
+    }
+
+    setLastFrameTime(frameTime)
+    setP95FrameTime(percentile(samples, 0.95))
+    setRenderQueueSize(result.remainingCount)
+    setHydratedCount(
+      visibleItems.filter(
+        (item) => runtime.renderScheduler.getLevel(item.id) >= 2,
+      ).length,
+    )
+
+    if (result.appliedCount > 0) {
+      setRenderVersion((version) => version + 1)
+      scheduleRenderFrame()
+    }
+  }, [lowEndMode, runtime, scheduleRenderFrame, visibleItems])
+  processRenderQueueRef.current = processRenderQueue
 
   const flushMeasurements = useCallback(() => {
     measurementFrameRef.current = null
@@ -268,18 +396,55 @@ export function PlaceholderVirtualizer() {
     const nextVelocity = Math.abs(delta) / elapsed
     const direction: ScrollDirection =
       delta > 0 ? "down" : delta < 0 ? "up" : "none"
+    const nextMode = computeScrollMode({
+      elapsedSinceScrollMs: 0,
+      isScrolling: true,
+      velocity: nextVelocity,
+    })
 
     previousScrollRef.current = {
       top: scrollRoot.scrollTop,
       time: now,
     }
+    lastScrollTimeRef.current = now
     latestScrollRef.current = {
       direction,
       top: scrollRoot.scrollTop,
       velocity: nextVelocity,
     }
+    updateScrollMode(nextMode)
+
+    if (scrollEndTimeoutRef.current !== null) {
+      window.clearTimeout(scrollEndTimeoutRef.current)
+    }
+
+    if (idleTimeoutRef.current !== null) {
+      window.clearTimeout(idleTimeoutRef.current)
+    }
+
+    scrollEndTimeoutRef.current = window.setTimeout(() => {
+      updateScrollMode(
+        computeScrollMode({
+          elapsedSinceScrollMs:
+            performance.now() - lastScrollTimeRef.current,
+          isScrolling: false,
+          velocity: 0,
+        }),
+      )
+      enqueueVisibleRenderTasks()
+
+      idleTimeoutRef.current = window.setTimeout(() => {
+        updateScrollMode("idle")
+        enqueueVisibleRenderTasks()
+      }, SETTLING_DURATION_MS)
+    }, SCROLL_END_DELAY_MS)
+
     scheduleRangeUpdate()
-  }, [scheduleRangeUpdate])
+  }, [
+    enqueueVisibleRenderTasks,
+    scheduleRangeUpdate,
+    updateScrollMode,
+  ])
 
   const handlePrepend = useCallback(() => {
     const scrollRoot = scrollRootRef.current
@@ -517,6 +682,15 @@ export function PlaceholderVirtualizer() {
   }, [runtime, scheduleMeasurementFlush])
 
   useEffect(() => {
+    enqueueVisibleRenderTasks()
+  }, [
+    dataVersion,
+    enqueueVisibleRenderTasks,
+    lowEndMode,
+    scrollMode,
+  ])
+
+  useEffect(() => {
     const scrollRoot = scrollRootRef.current
 
     if (!scrollRoot) {
@@ -556,6 +730,18 @@ export function PlaceholderVirtualizer() {
         cancelAnimationFrame(measurementFrameRef.current)
       }
 
+      if (renderFrameRef.current !== null) {
+        cancelAnimationFrame(renderFrameRef.current)
+      }
+
+      if (scrollEndTimeoutRef.current !== null) {
+        window.clearTimeout(scrollEndTimeoutRef.current)
+      }
+
+      if (idleTimeoutRef.current !== null) {
+        window.clearTimeout(idleTimeoutRef.current)
+      }
+
       stopFastScroll(fastScrollFrameRef)
     }
   }, [updateRenderWindow])
@@ -580,6 +766,13 @@ export function PlaceholderVirtualizer() {
           </button>
           <button type="button" onClick={handleFastScroll}>
             {isFastScrolling ? "Stop fast scroll" : "Run fast scroll"}
+          </button>
+          <button
+            type="button"
+            aria-pressed={lowEndMode}
+            onClick={() => setLowEndMode((enabled) => !enabled)}
+          >
+            {lowEndMode ? "Low-end budget: 4ms" : "Normal budget: 8ms"}
           </button>
         </div>
       </div>
@@ -611,7 +804,19 @@ export function PlaceholderVirtualizer() {
           value={`${imageStats.meanAbsoluteError.toFixed(1)} px`}
         />
         <Metric label="Scroll velocity" value={`${velocity.toFixed(2)} px/ms`} />
+        <Metric label="Scroll mode" value={scrollMode} />
+        <Metric label="Render queue" value={renderQueueSize.toString()} />
+        <Metric label="Hydrated visible" value={hydratedCount.toString()} />
+        <Metric
+          label="Last scheduler frame"
+          value={`${lastFrameTime.toFixed(2)} ms`}
+        />
+        <Metric label="p95 scheduler JS" value={`${p95FrameTime.toFixed(2)} ms`} />
       </div>
+      <p className="schedulerNote">
+        Scheduler-only timing. Use Chrome DevTools CPU throttling at 4x with
+        the low-end 4ms budget for the Phase 6 external measurement.
+      </p>
 
       <div
         ref={scrollRootRef}
@@ -619,21 +824,23 @@ export function PlaceholderVirtualizer() {
         onScroll={handleScroll}
       >
         <div style={{ height: renderWindow.topSpacer }} aria-hidden="true" />
-        {visibleItems.map((item) => (
-          <div
-            key={item.id}
-            ref={getMeasureRef(item.id)}
-            data-virtual-id={item.id}
-            data-item-type={item.type}
-            className={`placeholderItem placeholderItem--${item.tone}`}
-            style={{ height: getRenderedHeight(item) }}
-          >
-            <span>{item.label}</span>
-            <code>
-              {item.type} / {Math.round(item.height)}px
-            </code>
-          </div>
-        ))}
+        {visibleItems.map((item) => {
+          const renderLevel = runtime.renderScheduler.getLevel(item.id)
+
+          return (
+            <div
+              key={item.id}
+              ref={getMeasureRef(item.id)}
+              data-virtual-id={item.id}
+              data-item-type={item.type}
+              data-render-level={renderLevel}
+              className={`placeholderItem placeholderItem--${item.tone}`}
+              style={{ height: getRenderedHeight(item) }}
+            >
+              {renderPlaceholderContent(item, renderLevel)}
+            </div>
+          )
+        })}
         <div style={{ height: renderWindow.bottomSpacer }} aria-hidden="true" />
       </div>
     </section>
@@ -673,6 +880,10 @@ function createRuntime(firstIndex: number, count: number): Runtime {
     }),
     measurementQueue: new MeasurementQueue(),
     heightEstimator,
+    renderScheduler: new RenderScheduler({
+      lowEndBudgetMs: 4,
+      normalBudgetMs: 8,
+    }),
   }
 
   rebuildIndex(runtime)
@@ -710,12 +921,62 @@ function createPlaceholderItems(
       loaded: type === "text" || imagesLoaded,
       tone: tones[normalized % tones.length],
       type,
+      renderCost: type === "image" ? 6 : 1,
     }
   })
 }
 
 function getRenderedHeight(item: PlaceholderItem): number {
   return item.loaded ? item.actualHeight : item.height
+}
+
+function renderPlaceholderContent(
+  item: PlaceholderItem,
+  level: RenderLevel,
+) {
+  if (level === 0) {
+    return (
+      <>
+        <span className="renderSkeleton" aria-label="Placeholder" />
+        <code>placeholder</code>
+      </>
+    )
+  }
+
+  if (level === 1) {
+    return (
+      <>
+        <span className="renderShell">
+          <i />
+          <i />
+        </span>
+        <code>shell</code>
+      </>
+    )
+  }
+
+  if (level === 2) {
+    return (
+      <>
+        <span>{item.label}</span>
+        <code>
+          light / {Math.round(item.height)}px
+        </code>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <span className="renderFull">
+        {item.label}
+        {item.type === "image" ? <i className="imagePreview" /> : null}
+      </span>
+      <code>
+        full / {Math.round(item.height)}px
+      </code>
+    </>
+  )
 }
 
 function rebuildIndex(runtime: Runtime): void {
@@ -785,4 +1046,18 @@ function stopFastScroll(
 
 function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(Math.max(value, minimum), maximum)
+}
+
+function percentile(values: readonly number[], ratio: number): number {
+  if (values.length === 0) {
+    return 0
+  }
+
+  const sorted = [...values].sort((left, right) => left - right)
+  const index = Math.min(
+    sorted.length - 1,
+    Math.ceil(sorted.length * ratio) - 1,
+  )
+
+  return sorted[index]
 }

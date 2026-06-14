@@ -136,3 +136,34 @@ Anchor の capture/restore、viewport shift 計測、速度と方向に応じた
 - `README.md`
 - `Todo.md`
 - `LOG.md`
+
+# Phase 6 の frame-budget render scheduler を実装
+
+優先度付きrender taskをframe budget内で段階処理し、scroll modeに応じてheavy itemのhydrationを制御するschedulerとdemoを追加した。
+
+## 実装詳細
+
+- item単位でtaskを重複排除する`RenderScheduler`を追加
+- placeholder、shell、light、fullの4段階render levelを定義
+- viewport内、進行方向、anchor付近、距離、render costを使うpriority scoringを追加
+- 通常8ms、low-end 4msのframe budgetと推定costによる処理制限を追加
+- velocityとscroll終了後の経過時間からidle、dragging、flinging、settlingを判定
+- 1frameにつき各itemを1段階昇格するprogressive hydrationを追加
+- flinging中はheavy imageをshell、軽量itemをlightまでに制限
+- pending taskを現在のviewportとoverscan内に限定し、到達済みrender levelは保持
+- demoにrender level別のplaceholder、shell、light、full表示を追加
+- scroll mode、render queue、hydrated visible数、last frame、scheduler p95をlive表示
+- 8msと4ms budgetを切り替えるlow-end検証controlを追加
+- CPU throttle 4xでのp95実測はブラウザ検証が必要なためTodoに残した
+
+## 変更ファイル
+
+- `packages/core/src/RenderScheduler.ts`
+- `packages/core/src/RenderScheduler.test.ts`
+- `packages/core/src/index.ts`
+- `packages/core/src/index.test.ts`
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `apps/demo-next/app/globals.css`
+- `README.md`
+- `Todo.md`
+- `LOG.md`

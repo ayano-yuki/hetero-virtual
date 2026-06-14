@@ -8,6 +8,7 @@ import {
   HeightEstimator,
   MeasurementQueue,
   RangeCalculator,
+  RenderScheduler,
   measureViewportShift,
 } from "./index"
 
@@ -21,5 +22,6 @@ describe("@hetero-virtual/core", () => {
     expect(measureViewportShift).toBeTypeOf("function")
     expect(MeasurementQueue).toBeTypeOf("function")
     expect(HeightEstimator).toBeTypeOf("function")
+    expect(RenderScheduler).toBeTypeOf("function")
   })
 })

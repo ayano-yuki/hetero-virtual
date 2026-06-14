@@ -43,7 +43,9 @@ The benchmark page includes a live placeholder virtualizer with 50,000
 variable-height rows, prepend anchor preservation, viewport shift metrics, and
 a fast-scroll scenario. Visible rows are measured with `ResizeObserver`; height
 corrections restore the viewport anchor, update type-specific estimates, and
-can be exercised with the delayed-image control.
+can be exercised with the delayed-image control. Progressive render levels are
+scheduled within a selectable 8ms or low-end 4ms budget, with live scroll mode,
+render queue, hydration, and scheduler p95 metrics.
 
 ## Workspace
 

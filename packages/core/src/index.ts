@@ -29,5 +29,20 @@ export {
   type VisibleRange,
   type VisibleRangeInput,
 } from "./RangeCalculator"
+export {
+  RenderScheduler,
+  computeRenderPriority,
+  computeScrollMode,
+  getMaximumRenderLevel,
+  type ProcessRenderQueueOptions,
+  type RenderLevel,
+  type RenderPriorityInput,
+  type RenderProcessResult,
+  type RenderSchedulerOptions,
+  type RenderTask,
+  type ScrollMode,
+  type ScrollModeInput,
+  type ScrollModeOptions,
+} from "./RenderScheduler"
 
 export const CORE_PACKAGE_NAME = "@hetero-virtual/core"
