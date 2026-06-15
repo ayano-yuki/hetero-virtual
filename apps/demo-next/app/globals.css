@@ -351,6 +351,26 @@ h2 {
     #213047;
 }
 
+.chartPreview {
+  width: 48px;
+  height: 32px;
+  border-bottom: 2px solid currentColor;
+  background:
+    linear-gradient(135deg, transparent 0 18%, currentColor 19% 23%, transparent 24% 42%, currentColor 43% 48%, transparent 49% 64%, currentColor 65% 70%, transparent 71%);
+  opacity: 0.7;
+}
+
+.markdownPreview,
+.toolResultPreview {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  opacity: 0.72;
+}
+
 .placeholderItem--cyan {
   background: linear-gradient(90deg, rgb(34 211 238 / 11%), transparent 42%);
 }

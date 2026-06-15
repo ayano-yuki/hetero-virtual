@@ -11,7 +11,6 @@ import {
   computeScrollMode,
   measureViewportShift,
   type Anchor,
-  type RenderLevel,
   type ScrollDirection,
   type ScrollMode,
 } from "@hetero-virtual/core"
@@ -24,6 +23,12 @@ import {
   useState,
 } from "react"
 
+import {
+  demoAdapterRegistry,
+  type DemoItem,
+  type DemoItemType,
+} from "./adapters"
+
 const INITIAL_ITEM_COUNT = 50_000
 const PREPEND_ITEM_COUNT = 1_000
 const FALLBACK_VIEWPORT_HEIGHT = 640
@@ -34,21 +39,7 @@ const SCROLL_END_DELAY_MS = 80
 const SETTLING_DURATION_MS = 160
 const FRAME_SAMPLE_LIMIT = 240
 
-type PlaceholderTone = "cyan" | "violet" | "amber" | "blue"
-type PlaceholderType = "text" | "image"
 type RestoreReason = "measurement" | "prepend"
-
-type PlaceholderItem = {
-  id: string
-  height: number
-  actualHeight: number
-  baseHeight: number
-  label: string
-  loaded: boolean
-  tone: PlaceholderTone
-  type: PlaceholderType
-  renderCost: number
-}
 
 type RenderWindow = {
   startIndex: number
@@ -66,7 +57,7 @@ type PendingAnchorRestore = {
 }
 
 type Runtime = {
-  items: PlaceholderItem[]
+  items: DemoItem[]
   indexById: Map<string, number>
   heightTree: ChunkedHeightTree
   anchorManager: AnchorManager
@@ -94,7 +85,7 @@ export function PlaceholderVirtualizer() {
     new Map<string, (node: HTMLDivElement | null) => void>(),
   )
   const renderWindowRef = useRef<RenderWindow | null>(null)
-  const visibleItemsRef = useRef<PlaceholderItem[]>([])
+  const visibleItemsRef = useRef<DemoItem[]>([])
   const previousScrollRef = useRef({ top: 0, time: 0 })
   const lastScrollTimeRef = useRef(0)
   const scrollModeRef = useRef<ScrollMode>("idle")
@@ -236,6 +227,12 @@ export function PlaceholderVirtualizer() {
         continue
       }
 
+      const adapter = demoAdapterRegistry.get(item.type)
+      const renderCost = demoAdapterRegistry.estimateRenderCost(
+        item.type,
+        item,
+        3,
+      )
       const itemEnd = itemOffset + item.height
       const isVisible = itemEnd > viewportStart && itemOffset < viewportEnd
       const distanceFromViewport = isVisible
@@ -258,10 +255,10 @@ export function PlaceholderVirtualizer() {
           isAhead,
           isNearAnchor: anchor?.itemId === item.id,
           isVisible,
-          renderCost: item.renderCost,
+          renderCost,
         }),
-        estimatedCost: item.renderCost,
-        heavy: item.type === "image",
+        estimatedCost: renderCost,
+        heavy: adapter.canHydrateDuringScroll === false,
       })
     }
 
@@ -702,6 +699,17 @@ export function PlaceholderVirtualizer() {
           continue
         }
 
+        const item = runtime.items[itemIndex]
+        const measurement = demoAdapterRegistry.get(item.type).measurement
+
+        if (
+          measurement.mode === "fixed" ||
+          (measurement.mode === "observe-after-hydration" &&
+            runtime.renderScheduler.getLevel(id) < 2)
+        ) {
+          continue
+        }
+
         runtime.measurementQueue.enqueue({
           id,
           height:
@@ -802,7 +810,7 @@ export function PlaceholderVirtualizer() {
       <div className="virtualizerToolbar">
         <div>
           <p className="eyebrow">Live measurement virtualizer</p>
-          <h2>50,000 estimated and measured rows</h2>
+          <h2>50,000 adapter-driven heterogeneous rows</h2>
         </div>
         <div className="virtualizerActions">
           <button type="button" onClick={handlePrepend}>
@@ -833,6 +841,7 @@ export function PlaceholderVirtualizer() {
           label="Total items"
           value={runtime.items.length.toLocaleString()}
         />
+        <Metric label="Adapter types" value="5" />
         <Metric label="Rendered items" value={visibleItems.length.toString()} />
         <Metric
           label="Prepend shift"
@@ -877,6 +886,8 @@ export function PlaceholderVirtualizer() {
         <div style={{ height: renderWindow.topSpacer }} aria-hidden="true" />
         {visibleItems.map((item) => {
           const renderLevel = runtime.renderScheduler.getLevel(item.id)
+          const viewportWidth =
+            scrollRootRef.current?.clientWidth ?? 960
 
           return (
             <div
@@ -888,7 +899,10 @@ export function PlaceholderVirtualizer() {
               className={`placeholderItem placeholderItem--${item.tone}`}
               style={{ height: getRenderedHeight(item) }}
             >
-              {renderPlaceholderContent(item, renderLevel)}
+              {demoAdapterRegistry.render(item.type, item, {
+                level: renderLevel,
+                viewportWidth,
+              })}
             </div>
           )
         })}
@@ -946,88 +960,94 @@ function createPlaceholderItems(
   count: number,
   heightEstimator: HeightEstimator,
   imagesLoaded: boolean,
-): PlaceholderItem[] {
-  const tones: PlaceholderTone[] = ["cyan", "violet", "amber", "blue"]
+): DemoItem[] {
+  const tones: DemoItem["tone"][] = ["cyan", "violet", "amber", "blue"]
 
   return Array.from({ length: count }, (_, offset) => {
     const index = firstIndex + offset
     const normalized = Math.abs(index)
-    const type: PlaceholderType = normalized % 23 === 0 ? "image" : "text"
+    const type = getDemoItemType(normalized)
     const baseHeight = 52 + ((normalized * 37) % 76)
-    const actualHeight =
-      type === "image"
-        ? baseHeight + 160 + (normalized % 5) * 28
-        : Math.max(36, baseHeight + ((normalized * 13) % 17) - 8)
-    const estimatedHeight = heightEstimator.estimate(type, baseHeight)
-
-    return {
+    const complexity = 1 + (normalized % 6)
+    const item: DemoItem = {
       id: `placeholder-${index}`,
-      height: estimatedHeight,
-      actualHeight,
+      height: 1,
+      actualHeight: getActualHeight(type, baseHeight, complexity, normalized),
       baseHeight,
-      label:
-        type === "image"
-          ? `Delayed image ${index.toLocaleString()}`
-          : `Placeholder ${index.toLocaleString()}`,
-      loaded: type === "text" || imagesLoaded,
+      label: `${getTypeLabel(type)} ${index.toLocaleString()}`,
+      loaded: type !== "image" || imagesLoaded,
       tone: tones[normalized % tones.length],
       type,
-      renderCost: type === "image" ? 6 : 1,
+      complexity,
     }
+    const adapterHeight = demoAdapterRegistry.estimateHeight(type, item, {
+      viewportWidth: 960,
+    })
+
+    item.height = heightEstimator.estimate(type, adapterHeight)
+    return item
   })
 }
 
-function getRenderedHeight(item: PlaceholderItem): number {
-  return item.loaded ? item.actualHeight : item.height
+function getRenderedHeight(item: DemoItem): number {
+  return item.type !== "image" || item.loaded
+    ? item.actualHeight
+    : item.height
 }
 
-function renderPlaceholderContent(
-  item: PlaceholderItem,
-  level: RenderLevel,
-) {
-  if (level === 0) {
-    return (
-      <>
-        <span className="renderSkeleton" aria-label="Placeholder" />
-        <code>placeholder</code>
-      </>
-    )
+function getDemoItemType(index: number): DemoItemType {
+  const selector = index % 31
+
+  if (selector === 0) {
+    return "image"
   }
 
-  if (level === 1) {
-    return (
-      <>
-        <span className="renderShell">
-          <i />
-          <i />
-        </span>
-        <code>shell</code>
-      </>
-    )
+  if (selector === 5) {
+    return "chart"
   }
 
-  if (level === 2) {
-    return (
-      <>
-        <span>{item.label}</span>
-        <code>
-          light / {Math.round(item.height)}px
-        </code>
-      </>
-    )
+  if (selector === 11 || selector === 19) {
+    return "markdown"
   }
 
-  return (
-    <>
-      <span className="renderFull">
-        {item.label}
-        {item.type === "image" ? <i className="imagePreview" /> : null}
-      </span>
-      <code>
-        full / {Math.round(item.height)}px
-      </code>
-    </>
-  )
+  if (selector === 23) {
+    return "tool-result"
+  }
+
+  return "text"
+}
+
+function getActualHeight(
+  type: DemoItemType,
+  baseHeight: number,
+  complexity: number,
+  index: number,
+): number {
+  if (type === "image") {
+    return baseHeight + 160 + (index % 5) * 28
+  }
+
+  if (type === "chart") {
+    return baseHeight + 120
+  }
+
+  if (type === "markdown") {
+    return baseHeight + complexity * 20 + (index % 3) * 12
+  }
+
+  if (type === "tool-result") {
+    return baseHeight + complexity * 14 + (index % 4) * 8
+  }
+
+  return Math.max(36, baseHeight + ((index * 13) % 17) - 8)
+}
+
+function getTypeLabel(type: DemoItemType): string {
+  if (type === "tool-result") {
+    return "Tool result"
+  }
+
+  return `${type[0].toUpperCase()}${type.slice(1)}`
 }
 
 function rebuildIndex(runtime: Runtime): void {

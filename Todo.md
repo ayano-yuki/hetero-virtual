@@ -107,16 +107,16 @@ heavy item を一気に描画せず、scroll 中の frame budget を守る。
 
 便利 API ではなく、異種 DOM の特性を明示する adapter contract を優先する。
 
-- [ ] adapter type を定義する
-- [ ] `estimateHeight` contract を定義する
-- [ ] `renderCost` または cost hints を定義する
-- [ ] render levels を定義する
-- [ ] measurement behavior を定義する
-- [ ] text adapter を作る
-- [ ] markdown adapter を作る
-- [ ] image adapter を作る
-- [ ] chart adapter を作る
-- [ ] tool-result adapter を作る
+- [x] adapter type を定義する
+- [x] `estimateHeight` contract を定義する
+- [x] `renderCost` または cost hints を定義する
+- [x] render levels を定義する
+- [x] measurement behavior を定義する
+- [x] text adapter を作る
+- [x] markdown adapter を作る
+- [x] image adapter を作る
+- [x] chart adapter を作る
+- [x] tool-result adapter を作る
 
 避ける API:
 

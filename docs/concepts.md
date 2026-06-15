@@ -105,17 +105,26 @@ Full render should usually be avoided during high-velocity scrolling.
 Each item type should provide an adapter.
 
 ```ts
-type VirtualComponentAdapter<T> = {
+type VirtualItemAdapter<TItem, TRenderOutput> = {
   type: string
 
-  estimateHeight: (item: T, context: LayoutContext) => number
-  estimateRenderCost: (item: T) => number
-  estimateMeasureCost?: (item: T) => number
-
-  renderPlaceholder: (item: T, context: RenderContext) => React.ReactNode
-  renderShell: (item: T, context: RenderContext) => React.ReactNode
-  renderLight: (item: T, context: RenderContext) => React.ReactNode
-  renderFull: (item: T, context: RenderContext) => React.ReactNode
+  estimateHeight: (item: TItem, context: LayoutContext) => number
+  renderCost: {
+    placeholder: number | ((item: TItem) => number)
+    shell: number | ((item: TItem) => number)
+    light: number | ((item: TItem) => number)
+    full: number | ((item: TItem) => number)
+  }
+  renderLevels: {
+    placeholder: (item: TItem, context: RenderContext) => TRenderOutput
+    shell: (item: TItem, context: RenderContext) => TRenderOutput
+    light: (item: TItem, context: RenderContext) => TRenderOutput
+    full: (item: TItem, context: RenderContext) => TRenderOutput
+  }
+  measurement: {
+    mode: "fixed" | "observe" | "observe-after-hydration"
+    triggers?: Array<"content" | "load" | "resize">
+  }
 
   canHydrateDuringScroll?: boolean
 }
@@ -136,26 +145,24 @@ const MarkdownAdapter = {
     )
   },
 
-  estimateRenderCost(item) {
-    return 4 + item.codeBlockCount * 3 + item.imageCount * 4
+  renderCost: {
+    placeholder: 0.5,
+    shell: 1,
+    light: 2,
+    full: item => 4 + item.codeBlockCount * 3 + item.imageCount * 4,
   },
 
-  renderPlaceholder(item) {
-    return <div style={{ height: item.estimatedHeight }} />
+  renderLevels: {
+    placeholder: item => <div style={{ height: item.estimatedHeight }} />,
+    shell: () => <div className="markdown-shell" />,
+    light: item => <PlainMarkdown text={item.text} />,
+    full: item => <HighlightedMarkdown text={item.text} />,
   },
 
-  renderShell() {
-    return <div className="markdown-shell" />
+  measurement: {
+    mode: "observe",
+    triggers: ["content", "resize"],
   },
-
-  renderLight(item) {
-    return <PlainMarkdown text={item.text} />
-  },
-
-  renderFull(item) {
-    return <HighlightedMarkdown text={item.text} />
-  },
-
   canHydrateDuringScroll: false,
 }
 ```

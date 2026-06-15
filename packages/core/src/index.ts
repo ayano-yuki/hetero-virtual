@@ -1,4 +1,17 @@
 export {
+  AdapterRegistry,
+  getRenderLevelName,
+  type AdapterLayoutContext,
+  type AdapterRenderContext,
+  type AdapterRenderCost,
+  type AdapterRenderCostHints,
+  type AdapterRenderLevels,
+  type MeasurementBehavior,
+  type MeasurementMode,
+  type MeasurementTrigger,
+  type VirtualItemAdapter,
+} from "./Adapter"
+export {
   AnchorManager,
   measureViewportShift,
   type Anchor,

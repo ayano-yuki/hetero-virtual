@@ -201,3 +201,33 @@ Chrome CPU throttle 4xとlow-end 4ms budgetでfast scrollを計測し、p95 JS f
 
 - `Todo.md`
 - `LOG.md`
+
+# Phase 7 の adapter model を実装
+
+高さ推定、render cost、4段階render、measurement behaviorを明示するReact非依存contractと5種類のdemo adapterを追加した。
+
+## 実装詳細
+
+- genericな`VirtualItemAdapter` contractをcoreへ追加
+- placeholder、shell、light、fullごとのrender cost hintsとrendererを定義
+- fixed、observe、observe-after-hydrationのmeasurement modeを定義
+- adapterの重複、未知type、不正な高さとcostを検証する`AdapterRegistry`を追加
+- adapter contractとregistryのunit testsを追加
+- text、markdown、image、chart、tool-result adapterをdemoへ追加
+- 50,000件のbenchmark itemを5種類のadapter-driven混在データへ変更
+- 高さ推定、scheduler cost、heavy判定、段階描画、測定可否をadapter経由へ移行
+- adapter modelのREADMEとconcepts documentationを更新
+
+## 変更ファイル
+
+- `packages/core/src/Adapter.ts`
+- `packages/core/src/Adapter.test.ts`
+- `packages/core/src/index.ts`
+- `packages/core/src/index.test.ts`
+- `apps/demo-next/app/benchmark/adapters.tsx`
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `apps/demo-next/app/globals.css`
+- `docs/concepts.md`
+- `README.md`
+- `Todo.md`
+- `LOG.md`
