@@ -267,6 +267,94 @@ h2 {
   line-height: 1.5;
 }
 
+.scenarioDescription {
+  max-width: 620px;
+  margin: 8px 0 0;
+  color: #91a5bf;
+  line-height: 1.5;
+}
+
+.scenarioSelect {
+  display: grid;
+  gap: 5px;
+  color: #91a5bf;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.scenarioSelect select {
+  min-height: 42px;
+  padding: 0 34px 0 14px;
+  border: 1px solid #3d526c;
+  border-radius: 999px;
+  background: #12233a;
+  color: #eef5ff;
+  font: inherit;
+}
+
+.evidencePanel {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(3, minmax(0, 1fr)) auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid rgb(103 232 249 / 24%);
+  border-radius: 16px;
+  background: rgb(8 30 46 / 78%);
+}
+
+.evidencePanel p {
+  margin-bottom: 4px;
+}
+
+.evidencePanel button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #67e8f9;
+  border-radius: 999px;
+  background: transparent;
+  color: #bff7ff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.evidenceStatus span,
+.evidenceStatus strong,
+.evidenceStatus i {
+  display: block;
+}
+
+.evidenceStatus span {
+  color: #91a5bf;
+  font-size: 0.7rem;
+}
+
+.evidenceStatus strong {
+  overflow: hidden;
+  margin: 4px 0;
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.evidenceStatus i {
+  width: fit-content;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgb(251 191 36 / 16%);
+  color: #fcd34d;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.evidenceStatus i[data-passed="true"] {
+  background: rgb(52 211 153 / 16%);
+  color: #6ee7b7;
+}
+
 .placeholderScrollRoot {
   height: min(62vh, 680px);
   min-height: 420px;
@@ -465,5 +553,9 @@ h2 {
 
   .virtualizerPanel {
     padding: 18px;
+  }
+
+  .evidencePanel {
+    grid-template-columns: 1fr;
   }
 }

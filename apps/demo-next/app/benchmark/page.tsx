@@ -6,30 +6,30 @@ const scenarios = [
   {
     count: "100,000",
     label: "Plain text items",
-    status: "Planned",
+    status: "Live",
   },
   {
     count: "50,000",
     label: "Markdown and code items",
-    status: "Planned",
+    status: "Live",
   },
   {
     count: "20,000",
     label: "Image card mix",
-    status: "Planned",
+    status: "Live",
   },
   {
     count: "10,000",
     label: "Chart and tool-result items",
-    status: "Planned",
+    status: "Live",
   },
 ] as const
 
 const metrics = [
   ["p95 JS frame time", "<= 6 ms"],
   ["Viewport shift", "< 1 px"],
-  ["Rendered items", "Pending"],
-  ["Measurement queue", "Pending"],
+  ["Rendered items", "Live"],
+  ["Measurement queue", "Live"],
 ] as const
 
 export default function BenchmarkPage() {
@@ -37,11 +37,11 @@ export default function BenchmarkPage() {
     <main className="pageShell">
       <header className="benchmarkHeader">
         <div>
-          <p className="eyebrow">Benchmark foundation</p>
+          <p className="eyebrow">Benchmark evidence suite</p>
           <h1>Performance scenarios</h1>
           <p className="lede">
-            This page reserves the scenarios and metrics that later phases will
-            connect to the virtualizer.
+            Select a dataset, run mutation and scroll scenarios, then copy a
+            reproducible evidence snapshot.
           </p>
         </div>
         <Link className="secondaryLink" href="/">
@@ -66,7 +66,7 @@ export default function BenchmarkPage() {
             <p className="eyebrow">Initial suite</p>
             <h2>Benchmark scenarios</h2>
           </div>
-          <span className="phaseBadge">Phase 4</span>
+          <span className="phaseBadge">Phase 9</span>
         </div>
 
         <div className="scenarioGrid">

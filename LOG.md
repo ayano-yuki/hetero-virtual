@@ -263,3 +263,34 @@ Chrome CPU throttle 4xとlow-end 4ms budgetでfast scrollを計測し、p95 JS f
 - `Todo.md`
 - `pnpm-lock.yaml`
 - `LOG.md`
+
+# Phase 9 の benchmark evidence suite を実装
+
+4種類の大規模dataset、連続mutation、fast scroll、height correction、live判定、JSON証跡出力をbenchmark pageへ追加した。
+
+## 実装詳細
+
+- 100,000 text、50,000 markdown、20,000 image、10,000 chart/tool-result presetを追加
+- presetごとのdeterministicなtype分布とheight varianceを定義
+- dataset selectorでruntimeを独立再生成するscenario切替を追加
+- append、prepend、continuous append、continuous prepend controlsを追加
+- delayed image、high-variance correction、fast scroll、4ms low-end controlsを統合
+- p95 JS、viewport shift、rendered count、measurement queueのevidence panelを追加
+- 6ms以下と1px未満のpass/check判定を追加
+- dataset、timestamp、throttle条件、live metricsを含むJSON copyを追加
+- preset件数、type分布、variance、未計測状態、threshold判定のunit testsを追加
+- benchmark scenariosとevidence取得手順を文書化
+
+## 変更ファイル
+
+- `apps/demo-next/app/benchmark/benchmarkScenarios.ts`
+- `apps/demo-next/app/benchmark/benchmarkScenarios.test.ts`
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `apps/demo-next/app/benchmark/page.tsx`
+- `apps/demo-next/app/globals.css`
+- `apps/demo-next/package.json`
+- `apps/demo-next/vitest.config.ts`
+- `docs/benchmarks.md`
+- `README.md`
+- `Todo.md`
+- `LOG.md`

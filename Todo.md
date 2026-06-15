@@ -144,20 +144,20 @@ core は React 非依存のままにし、React 側は hooks と DOM integration
 
 数字で示せないものは、まだ売りにしない。
 
-- [ ] 100,000 plain text items
-- [ ] 50,000 markdown/code mixed items
-- [ ] 20,000 image card mixed items
-- [ ] 10,000 chart/tool-result heavy items
-- [ ] continuous append
-- [ ] continuous prepend
-- [ ] fast wheel scrolling
-- [ ] mobile-like CPU throttling
-- [ ] delayed image height changes
-- [ ] high-variance item heights
-- [ ] p95 JS frame time を表示する
-- [ ] viewport shift px を表示する
-- [ ] rendered item count を表示する
-- [ ] measurement queue length を表示する
+- [x] 100,000 plain text items
+- [x] 50,000 markdown/code mixed items
+- [x] 20,000 image card mixed items
+- [x] 10,000 chart/tool-result heavy items
+- [x] continuous append
+- [x] continuous prepend
+- [x] fast wheel scrolling
+- [x] mobile-like CPU throttling
+- [x] delayed image height changes
+- [x] high-variance item heights
+- [x] p95 JS frame time を表示する
+- [x] viewport shift px を表示する
+- [x] rendered item count を表示する
+- [x] measurement queue length を表示する
 
 ## Phase 10: Private Package Trial
 

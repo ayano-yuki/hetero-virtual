@@ -29,9 +29,18 @@ import {
   type DemoItem,
   type DemoItemType,
 } from "./adapters"
+import {
+  BENCHMARK_SCENARIOS,
+  DEFAULT_BENCHMARK_SCENARIO,
+  evaluateBenchmarkEvidence,
+  getScenarioHeightVariance,
+  getScenarioItemType,
+  type BenchmarkScenario,
+  type BenchmarkScenarioId,
+} from "./benchmarkScenarios"
 
-const INITIAL_ITEM_COUNT = 50_000
 const PREPEND_ITEM_COUNT = 1_000
+const APPEND_ITEM_COUNT = 1_000
 const FALLBACK_VIEWPORT_HEIGHT = 640
 const FAST_SCROLL_STEP_PX = 1_100
 const FAST_SCROLL_FRAME_COUNT = 90
@@ -69,6 +78,29 @@ type Runtime = {
 }
 
 export function PlaceholderVirtualizer() {
+  const [scenarioId, setScenarioId] = useState<BenchmarkScenarioId>(
+    DEFAULT_BENCHMARK_SCENARIO.id,
+  )
+  const scenario =
+    BENCHMARK_SCENARIOS.find((candidate) => candidate.id === scenarioId) ??
+    DEFAULT_BENCHMARK_SCENARIO
+
+  return (
+    <BenchmarkVirtualizer
+      key={scenario.id}
+      scenario={scenario}
+      onScenarioChange={setScenarioId}
+    />
+  )
+}
+
+function BenchmarkVirtualizer({
+  scenario,
+  onScenarioChange,
+}: {
+  scenario: BenchmarkScenario
+  onScenarioChange: (id: BenchmarkScenarioId) => void
+}) {
   const scrollRootRef = useRef<HTMLDivElement | null>(null)
   const runtimeRef = useRef<Runtime | null>(null)
   const rangeFrameRef = useRef<number | null>(null)
@@ -104,9 +136,10 @@ export function PlaceholderVirtualizer() {
   })
   const pendingRestoreRef = useRef<PendingAnchorRestore | null>(null)
   const prependCursorRef = useRef(-1)
+  const appendCursorRef = useRef(scenario.count)
 
   if (!runtimeRef.current) {
-    runtimeRef.current = createRuntime(0, INITIAL_ITEM_COUNT)
+    runtimeRef.current = createRuntime(0, scenario.count, scenario.id)
   }
 
   const runtime = runtimeRef.current
@@ -128,6 +161,10 @@ export function PlaceholderVirtualizer() {
   const [p95FrameTime, setP95FrameTime] = useState(0)
   const [lastFrameTime, setLastFrameTime] = useState(0)
   const [lowEndMode, setLowEndMode] = useState(false)
+  const [continuousMode, setContinuousMode] = useState<
+    "append" | "prepend" | null
+  >(null)
+  const [copyStatus, setCopyStatus] = useState("Copy evidence JSON")
   const packageItems = useMemo(
     () => [...runtime.items],
     [dataVersion, runtime],
@@ -551,6 +588,7 @@ export function PlaceholderVirtualizer() {
       PREPEND_ITEM_COUNT,
       runtime.heightEstimator,
       imagesLoaded,
+      scenario.id,
     )
     prependCursorRef.current = firstId - 1
 
@@ -572,7 +610,23 @@ export function PlaceholderVirtualizer() {
       targetScrollTop,
     }
     setDataVersion((version) => version + 1)
-  }, [imagesLoaded, runtime])
+  }, [imagesLoaded, runtime, scenario.id])
+
+  const handleAppend = useCallback(() => {
+    const appendedItems = createPlaceholderItems(
+      appendCursorRef.current,
+      APPEND_ITEM_COUNT,
+      runtime.heightEstimator,
+      imagesLoaded,
+      scenario.id,
+    )
+
+    appendCursorRef.current += APPEND_ITEM_COUNT
+    runtime.heightTree.append(appendedItems)
+    runtime.items.push(...appendedItems)
+    rebuildIndex(runtime)
+    setDataVersion((version) => version + 1)
+  }, [imagesLoaded, runtime, scenario.id])
 
   const handleLoadImages = useCallback(() => {
     if (imagesLoaded) {
@@ -588,6 +642,33 @@ export function PlaceholderVirtualizer() {
     setImagesLoaded(true)
     setDataVersion((version) => version + 1)
   }, [imagesLoaded, runtime])
+
+  const handleHighVariance = useCallback(() => {
+    for (let index = 0; index < runtime.items.length; index += 7) {
+      const item = runtime.items[index]
+      item.actualHeight += 80 + (index % 9) * 28
+      item.loaded = true
+    }
+
+    setImagesLoaded(true)
+    setDataVersion((version) => version + 1)
+  }, [runtime])
+
+  useEffect(() => {
+    if (!continuousMode) {
+      return
+    }
+
+    const interval = window.setInterval(() => {
+      if (continuousMode === "append") {
+        handleAppend()
+      } else {
+        handlePrepend()
+      }
+    }, 350)
+
+    return () => window.clearInterval(interval)
+  }, [continuousMode, handleAppend, handlePrepend])
 
   const handleFastScroll = useCallback(() => {
     const scrollRoot = scrollRootRef.current
@@ -861,16 +942,88 @@ export function PlaceholderVirtualizer() {
     }
   }, [updateRenderWindow])
 
+  const viewportShift = Math.max(
+    Math.abs(prependViewportShift),
+    Math.abs(resizeViewportShift),
+  )
+  const evidenceResult = evaluateBenchmarkEvidence({
+    measuredAt: new Date().toISOString(),
+    measurementQueue: measurementQueueSize,
+    p95JsFrameTime: p95FrameTime,
+    renderedItems: visibleItems.length,
+    sampleCount: frameSamplesRef.current.length,
+    scenarioId: scenario.id,
+    totalItems: runtime.items.length,
+    viewportShift,
+  })
+
+  const handleCopyEvidence = async () => {
+    const evidence = {
+      ...evidenceResult,
+      cpuThrottle: lowEndMode ? "4x external / 4ms budget" : "none / 8ms budget",
+      scenario: scenario.label,
+    }
+
+    await navigator.clipboard.writeText(JSON.stringify(evidence, null, 2))
+    setCopyStatus("Copied")
+    window.setTimeout(() => setCopyStatus("Copy evidence JSON"), 1_500)
+  }
+
   return (
     <section className="virtualizerPanel">
       <div className="virtualizerToolbar">
         <div>
           <p className="eyebrow">Live measurement virtualizer</p>
-          <h2>50,000 adapter-driven heterogeneous rows</h2>
+          <h2>{scenario.label}</h2>
+          <p className="scenarioDescription">{scenario.description}</p>
         </div>
         <div className="virtualizerActions">
+          <label className="scenarioSelect">
+            <span>Dataset</span>
+            <select
+              value={scenario.id}
+              onChange={(event) =>
+                onScenarioChange(event.target.value as BenchmarkScenarioId)
+              }
+            >
+              {BENCHMARK_SCENARIOS.map((candidate) => (
+                <option key={candidate.id} value={candidate.id}>
+                  {candidate.shortLabel} ({candidate.count.toLocaleString()})
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="button" onClick={handleAppend}>
+            Append {APPEND_ITEM_COUNT.toLocaleString()}
+          </button>
           <button type="button" onClick={handlePrepend}>
             Prepend {PREPEND_ITEM_COUNT.toLocaleString()}
+          </button>
+          <button
+            type="button"
+            aria-pressed={continuousMode === "append"}
+            onClick={() =>
+              setContinuousMode((mode) =>
+                mode === "append" ? null : "append",
+              )
+            }
+          >
+            {continuousMode === "append"
+              ? "Stop continuous append"
+              : "Continuous append"}
+          </button>
+          <button
+            type="button"
+            aria-pressed={continuousMode === "prepend"}
+            onClick={() =>
+              setContinuousMode((mode) =>
+                mode === "prepend" ? null : "prepend",
+              )
+            }
+          >
+            {continuousMode === "prepend"
+              ? "Stop continuous prepend"
+              : "Continuous prepend"}
           </button>
           <button
             type="button"
@@ -878,6 +1031,9 @@ export function PlaceholderVirtualizer() {
             disabled={imagesLoaded}
           >
             {imagesLoaded ? "Delayed images loaded" : "Load delayed images"}
+          </button>
+          <button type="button" onClick={handleHighVariance}>
+            Apply high variance
           </button>
           <button type="button" onClick={handleFastScroll}>
             {isFastScrolling ? "Stop fast scroll" : "Run fast scroll"}
@@ -942,6 +1098,31 @@ export function PlaceholderVirtualizer() {
         the low-end 4ms budget for the Phase 6 external measurement.
       </p>
 
+      <div className="evidencePanel" aria-label="Benchmark evidence">
+        <div>
+          <p className="eyebrow">Evidence snapshot</p>
+          <strong>{scenario.label}</strong>
+        </div>
+        <EvidenceStatus
+          label="p95 JS"
+          passed={evidenceResult.frameTimePassed}
+          value={`${p95FrameTime.toFixed(2)} ms / <= 6 ms`}
+        />
+        <EvidenceStatus
+          label="Viewport shift"
+          passed={evidenceResult.viewportShiftPassed}
+          value={`${viewportShift.toFixed(2)} px / < 1 px`}
+        />
+        <EvidenceStatus
+          label="Rendered / queue"
+          passed={measurementQueueSize === 0}
+          value={`${visibleItems.length} / ${measurementQueueSize}`}
+        />
+        <button type="button" onClick={handleCopyEvidence}>
+          {copyStatus}
+        </button>
+      </div>
+
       <div
         ref={scrollRootRef}
         className="placeholderScrollRoot"
@@ -990,13 +1171,36 @@ function Metric({ label, value }: { label: string; value: string }) {
   )
 }
 
-function createRuntime(firstIndex: number, count: number): Runtime {
+function EvidenceStatus({
+  label,
+  passed,
+  value,
+}: {
+  label: string
+  passed: boolean
+  value: string
+}) {
+  return (
+    <div className="evidenceStatus">
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <i data-passed={passed}>{passed ? "PASS" : "CHECK"}</i>
+    </div>
+  )
+}
+
+function createRuntime(
+  firstIndex: number,
+  count: number,
+  scenarioId: BenchmarkScenarioId,
+): Runtime {
   const heightEstimator = new HeightEstimator()
   const items = createPlaceholderItems(
     firstIndex,
     count,
     heightEstimator,
     false,
+    scenarioId,
   )
   const heightTree = new ChunkedHeightTree({ chunkSize: 128 })
   heightTree.append(items)
@@ -1029,19 +1233,22 @@ function createPlaceholderItems(
   count: number,
   heightEstimator: HeightEstimator,
   imagesLoaded: boolean,
+  scenarioId: BenchmarkScenarioId,
 ): DemoItem[] {
   const tones: DemoItem["tone"][] = ["cyan", "violet", "amber", "blue"]
 
   return Array.from({ length: count }, (_, offset) => {
     const index = firstIndex + offset
     const normalized = Math.abs(index)
-    const type = getDemoItemType(normalized)
+    const type = getScenarioItemType(scenarioId, normalized)
     const baseHeight = 52 + ((normalized * 37) % 76)
     const complexity = 1 + (normalized % 6)
+    const variance = getScenarioHeightVariance(scenarioId, normalized)
     const item: DemoItem = {
       id: `placeholder-${index}`,
       height: 1,
-      actualHeight: getActualHeight(type, baseHeight, complexity, normalized),
+      actualHeight:
+        getActualHeight(type, baseHeight, complexity, normalized) + variance,
       baseHeight,
       label: `${getTypeLabel(type)} ${index.toLocaleString()}`,
       loaded: type !== "image" || imagesLoaded,
@@ -1062,28 +1269,6 @@ function getRenderedHeight(item: DemoItem): number {
   return item.type !== "image" || item.loaded
     ? item.actualHeight
     : item.height
-}
-
-function getDemoItemType(index: number): DemoItemType {
-  const selector = index % 31
-
-  if (selector === 0) {
-    return "image"
-  }
-
-  if (selector === 5) {
-    return "chart"
-  }
-
-  if (selector === 11 || selector === 19) {
-    return "markdown"
-  }
-
-  if (selector === 23) {
-    return "tool-result"
-  }
-
-  return "text"
 }
 
 function getActualHeight(

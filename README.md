@@ -18,6 +18,7 @@ A jank-resistant virtualizer for heterogeneous, bidirectional, dynamic-height li
 * [Architecture](docs/architecture.md)
 * [React API](docs/react-api.md)
 * [Demo & Examples](docs/demo.md)
+* [Benchmarks & Evidence](docs/benchmarks.md)
 * [Strategy](docs/strategy.md)
 
 ## Quick start
@@ -49,6 +50,10 @@ low-end 4ms budget, with live scroll mode, render queue, hydration, and
 scheduler p95 metrics. The benchmark consumes `useHeteroVirtualizer` from the
 internal React package for subscribed range state, render scheduling, and
 adapter rendering.
+
+Phase 9 adds selectable 100k text, 50k markdown, 20k image, and 10k heavy
+presets, continuous mutation controls, high-variance correction, and a
+copyable evidence JSON snapshot.
 
 ## Workspace
 
