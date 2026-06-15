@@ -46,7 +46,9 @@ levels, and measurement behavior. The demo also includes prepend anchor
 preservation, viewport shift metrics, delayed images, and a fast-scroll
 scenario. Progressive render levels are scheduled within a selectable 8ms or
 low-end 4ms budget, with live scroll mode, render queue, hydration, and
-scheduler p95 metrics.
+scheduler p95 metrics. The benchmark consumes `useHeteroVirtualizer` from the
+internal React package for subscribed range state, render scheduling, and
+adapter rendering.
 
 ## Workspace
 

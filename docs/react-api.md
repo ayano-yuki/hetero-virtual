@@ -1,56 +1,45 @@
 # React API
 
-This section shows the proposed React API for `hetero-virtual`.
+`@hetero-virtual/react` connects the framework-independent core to React and
+the DOM. Range state lives in an external store and React subscribes with
+`useSyncExternalStore`.
 
-## Hook Draft
+## Hook
 
 ```tsx
 const virtualizer = useHeteroVirtualizer({
   items,
-
   getScrollElement: () => parentRef.current,
-
   getKey: item => item.id,
   getType: item => item.type,
-
-  adapters: {
-    text: TextAdapter,
-    markdown: MarkdownAdapter,
-    image: ImageAdapter,
-    chart: ChartAdapter,
-    toolResult: ToolResultAdapter,
-  },
-
-  bidirectional: true,
-
+  getEstimatedHeight: item => item.height,
+  adapters: adapterRegistry,
+  lowEnd,
   overscan: {
-    mode: "velocity",
-    minPx: 600,
-    maxPx: 3600,
+    minOverscanPx: 600,
+    maxOverscanPx: 3600,
     horizonMs: 120,
+    baseViewportRatio: 0.5,
   },
-
   scheduler: {
     lowEndBudgetMs: 4,
     normalBudgetMs: 8,
-    maxHydrationsPerFrame: 3,
-    deferHeavyDuringScroll: true,
-  },
-
-  anchor: {
-    preserveOnPrepend: true,
-    preserveOnResize: true,
   },
 })
 ```
 
+The hook connects:
+
+* scroll and resize listeners
+* velocity, direction, and scroll-mode updates
+* frame-budget render scheduling
+* `ResizeObserver` measurement
+* adapter rendering at the current render level
+
 ## Render Pattern
 
 ```tsx
-<div
-  ref={parentRef}
-  className="hetero-scroll"
->
+<div ref={parentRef} className="hetero-scroll">
   <div
     className="hetero-spacer"
     style={{
@@ -59,31 +48,29 @@ const virtualizer = useHeteroVirtualizer({
     }}
   >
     {virtualizer.items.map(virtualItem => (
-      <div
+      <HeteroVirtualItem
         key={virtualItem.key}
-        data-virtual-id={virtualItem.id}
-        ref={virtualizer.measureElement(virtualItem.id)}
+        virtualItem={virtualItem}
+        virtualizer={virtualizer}
         className="hetero-item"
-        style={{
-          position: "absolute",
-          width: "100%",
-          transform: `translateY(${virtualItem.start}px)`,
-        }}
-      >
-        {virtualizer.renderItem(virtualItem)}
-      </div>
+      />
     ))}
   </div>
 </div>
 ```
 
-## Minimal Usage
+`HeteroVirtualItem` positions the item, attaches `measureElement`, and renders
+the adapter output for the current placeholder, shell, light, or full level.
 
-The hook exposes:
+## Returned State
 
-* `items` – virtualized item metadata
-* `totalSize` – total spacer height
-* `measureElement(id)` – ref callback for measurement
-* `renderItem(item)` – render wrapper for the current level
+* `items` - visible and overscan item metadata
+* `totalSize` - total spacer height
+* `renderQueueSize` - pending scheduler tasks
+* `measurementCount` - accepted DOM height corrections
+* `measureElement(id)` - stable DOM ref callback
+* `renderItem(item)` - adapter rendering glue
+* `store` - lower-level imperative store for advanced integrations
 
-This pattern separates layout from item rendering and keeps the scroll root minimal.
+The store is exported separately so range, measurement, and scheduling behavior
+can be tested without mounting React.

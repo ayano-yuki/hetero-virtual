@@ -132,13 +132,13 @@ heavy item を一気に描画せず、scroll 中の frame budget を守る。
 
 core は React 非依存のままにし、React 側は hooks と DOM integration に閉じる。
 
-- [ ] `useHeteroVirtualizer` を実装する
-- [ ] `measureElement` を実装する
-- [ ] `HeteroVirtualItem` を実装する
-- [ ] adapter rendering glue を作る
-- [ ] `useSyncExternalStore` で state subscription を組む
-- [ ] React-specific scheduling glue を作る
-- [ ] demo app から internal package として使う
+- [x] `useHeteroVirtualizer` を実装する
+- [x] `measureElement` を実装する
+- [x] `HeteroVirtualItem` を実装する
+- [x] adapter rendering glue を作る
+- [x] `useSyncExternalStore` で state subscription を組む
+- [x] React-specific scheduling glue を作る
+- [x] demo app から internal package として使う
 
 ## Phase 9: Benchmarks And Evidence
 

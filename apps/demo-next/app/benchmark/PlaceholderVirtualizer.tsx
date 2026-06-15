@@ -22,6 +22,7 @@ import {
   useRef,
   useState,
 } from "react"
+import { useHeteroVirtualizer } from "@hetero-virtual/react"
 
 import {
   demoAdapterRegistry,
@@ -84,6 +85,9 @@ export function PlaceholderVirtualizer() {
   const measureRefsRef = useRef(
     new Map<string, (node: HTMLDivElement | null) => void>(),
   )
+  const combinedMeasureRefsRef = useRef(
+    new Map<string, (node: HTMLDivElement | null) => void>(),
+  )
   const renderWindowRef = useRef<RenderWindow | null>(null)
   const visibleItemsRef = useRef<DemoItem[]>([])
   const previousScrollRef = useRef({ top: 0, time: 0 })
@@ -124,6 +128,37 @@ export function PlaceholderVirtualizer() {
   const [p95FrameTime, setP95FrameTime] = useState(0)
   const [lastFrameTime, setLastFrameTime] = useState(0)
   const [lowEndMode, setLowEndMode] = useState(false)
+  const packageItems = useMemo(
+    () => [...runtime.items],
+    [dataVersion, runtime],
+  )
+  const getScrollElement = useCallback(() => scrollRootRef.current, [])
+  const reactVirtualizer = useHeteroVirtualizer({
+    items: packageItems,
+    getScrollElement,
+    getKey: (item) => item.id,
+    getType: (item) => item.type,
+    getEstimatedHeight: (item) => item.height,
+    adapters: demoAdapterRegistry,
+    lowEnd: lowEndMode,
+    overscan: {
+      minOverscanPx: 600,
+      maxOverscanPx: 3_600,
+      horizonMs: 120,
+      baseViewportRatio: 0.5,
+    },
+    scheduler: {
+      lowEndBudgetMs: 4,
+      normalBudgetMs: 8,
+    },
+  })
+  const packageVirtualItemsById = useMemo(
+    () =>
+      new Map(
+        reactVirtualizer.items.map((item) => [item.id, item] as const),
+      ),
+    [reactVirtualizer.items],
+  )
 
   renderWindowRef.current = renderWindow
 
@@ -620,6 +655,27 @@ export function PlaceholderVirtualizer() {
     return measureRef
   }, [])
 
+  const getCombinedMeasureRef = useCallback(
+    (id: string) => {
+      const existing = combinedMeasureRefsRef.current.get(id)
+
+      if (existing) {
+        return existing
+      }
+
+      const localMeasureRef = getMeasureRef(id)
+      const packageMeasureRef = reactVirtualizer.measureElement(id)
+      const measureRef = (node: HTMLDivElement | null) => {
+        localMeasureRef(node)
+        packageMeasureRef(node)
+      }
+
+      combinedMeasureRefsRef.current.set(id, measureRef)
+      return measureRef
+    },
+    [getMeasureRef, reactVirtualizer.measureElement],
+  )
+
   useLayoutEffect(() => {
     const pending = pendingRestoreRef.current
     const scrollRoot = scrollRootRef.current
@@ -865,8 +921,16 @@ export function PlaceholderVirtualizer() {
         />
         <Metric label="Scroll velocity" value={`${velocity.toFixed(2)} px/ms`} />
         <Metric label="Scroll mode" value={scrollMode} />
-        <Metric label="Render queue" value={renderQueueSize.toString()} />
-        <Metric label="Hydrated visible" value={hydratedCount.toString()} />
+        <Metric
+          label="Render queue"
+          value={reactVirtualizer.renderQueueSize.toString()}
+        />
+        <Metric
+          label="Hydrated visible"
+          value={reactVirtualizer.items
+            .filter((item) => item.level >= 2)
+            .length.toString()}
+        />
         <Metric
           label="Last scheduler frame"
           value={`${lastFrameTime.toFixed(2)} ms`}
@@ -885,24 +949,29 @@ export function PlaceholderVirtualizer() {
       >
         <div style={{ height: renderWindow.topSpacer }} aria-hidden="true" />
         {visibleItems.map((item) => {
-          const renderLevel = runtime.renderScheduler.getLevel(item.id)
+          const packageVirtualItem = packageVirtualItemsById.get(item.id)
+          const renderLevel =
+            packageVirtualItem?.level ??
+            runtime.renderScheduler.getLevel(item.id)
           const viewportWidth =
             scrollRootRef.current?.clientWidth ?? 960
 
           return (
             <div
               key={item.id}
-              ref={getMeasureRef(item.id)}
+              ref={getCombinedMeasureRef(item.id)}
               data-virtual-id={item.id}
               data-item-type={item.type}
               data-render-level={renderLevel}
               className={`placeholderItem placeholderItem--${item.tone}`}
               style={{ height: getRenderedHeight(item) }}
             >
-              {demoAdapterRegistry.render(item.type, item, {
-                level: renderLevel,
-                viewportWidth,
-              })}
+              {packageVirtualItem
+                ? reactVirtualizer.renderItem(packageVirtualItem)
+                : demoAdapterRegistry.render(item.type, item, {
+                    level: renderLevel,
+                    viewportWidth,
+                  })}
             </div>
           )
         })}

@@ -231,3 +231,35 @@ Chrome CPU throttle 4xとlow-end 4ms budgetでfast scrollを計測し、p95 JS f
 - `README.md`
 - `Todo.md`
 - `LOG.md`
+
+# Phase 8 の React package integration を実装
+
+外部store、`useSyncExternalStore` hook、DOM測定、adapter描画、React固有scheduler glueを`@hetero-virtual/react`へ追加しdemoへ接続した。
+
+## 実装詳細
+
+- height tree、range calculator、render schedulerを統合する`VirtualizerStore`を追加
+- immutable snapshotとsubscribe APIを実装
+- scroll、resize、velocity、scroll modeを接続する`useHeteroVirtualizer`を追加
+- `ResizeObserver`とmeasurement behaviorを使う`measureElement`を追加
+- adapterの現在render levelを描画する`renderItem`を追加
+- position、測定ref、adapter描画をまとめる`HeteroVirtualItem`を追加
+- requestAnimationFrameでrender queueを進めるReact-specific scheduling glueを追加
+- storeのrange、subscription、measurement、render promotion、item同期testsを追加
+- benchmarkのrender level、queue指標、DOM測定、adapter描画をReact packageへ接続
+- React API documentationを実装済みAPIへ更新
+
+## 変更ファイル
+
+- `packages/react/src/VirtualizerStore.ts`
+- `packages/react/src/VirtualizerStore.test.ts`
+- `packages/react/src/useHeteroVirtualizer.tsx`
+- `packages/react/src/index.ts`
+- `packages/react/package.json`
+- `packages/react/vitest.config.ts`
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `docs/react-api.md`
+- `README.md`
+- `Todo.md`
+- `pnpm-lock.yaml`
+- `LOG.md`
