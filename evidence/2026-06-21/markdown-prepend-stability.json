@@ -1,0 +1,20 @@
+{
+  "cpuThrottle": "4x external / 4ms budget",
+  "dataset": "markdown-50k",
+  "heavyBlankFrameCount": 0,
+  "heavyPlaceholderOnlyFrameCount": 0,
+  "library": "hetero-virtual",
+  "measuredAt": "2026-06-21T14:51:10.579Z",
+  "measurementQueue": 0,
+  "p95JsFrameTime": 0,
+  "renderedItems": 9,
+  "sampleCount": 0,
+  "scenario": "50,000 markdown and code items",
+  "scenarioId": "markdown-50k",
+  "totalItems": 51000,
+  "viewportShift": 0.3999999999650754,
+  "frameTimePassed": false,
+  "heavyBlankFramePassed": true,
+  "measurementQueuePassed": true,
+  "viewportShiftPassed": true
+}

@@ -51,6 +51,10 @@ Use **Copy evidence JSON** after the scenario settles. The copied record
 includes the dataset ID, item count, timestamp, throttle label, live metrics,
 and pass/fail results.
 
+Captured evidence is stored in dated folders under `evidence/`. Files ending
+in `-incomplete.json` are useful stability records, but they are not valid p95
+frame-time evidence when `sampleCount` is `0`.
+
 Target thresholds:
 
 | Metric | Target |

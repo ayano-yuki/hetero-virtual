@@ -353,3 +353,26 @@ Public Npm Publish GateをTodoとは別の実行タスクへ分割し、benchmar
 - `docs/benchmarks.md`
 - `docs/demo.md`
 - `examples/next-basic/**`
+
+# Public Npm Publish Gate の実ブラウザ証跡を保存
+
+2026-06-21の手動ブラウザ計測結果を保存し、成立したprepend、resize、heavy blank-frame関連のgate項目を反映した。
+
+## 実装詳細
+
+- `evidence/`を追加し、証跡保存ルールと日付別記録を作成
+- plain text fast scroll、image resize/high variance、prepend、continuous prependの有効証跡を保存
+- markdown/heavy fast scrollは`sampleCount = 0`のため、p95未成立のincomplete証跡として保存
+- `TASKS.md`でPPG-02、PPG-03、PPG-04を完了状態へ更新
+- PPG-05はCPU throttle 4x fast-scrollの`sampleCount > 0`証跡が必要なため未完のまま維持
+- Todoのprepend、resize、heavy blank-frame関連の達成項目を更新
+- READMEとbenchmarks docsから`evidence/`への導線を追記
+
+## 変更ファイル
+
+- `evidence/**`
+- `TASKS.md`
+- `Todo.md`
+- `README.md`
+- `docs/benchmarks.md`
+- `LOG.md`

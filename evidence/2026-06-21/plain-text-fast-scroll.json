@@ -1,0 +1,20 @@
+{
+  "cpuThrottle": "none / 8ms budget",
+  "dataset": "plain-text-100k",
+  "heavyBlankFrameCount": 0,
+  "heavyPlaceholderOnlyFrameCount": 0,
+  "library": "hetero-virtual",
+  "measuredAt": "2026-06-21T14:46:18.205Z",
+  "measurementQueue": 0,
+  "p95JsFrameTime": 1.1000000014901161,
+  "renderedItems": 19,
+  "sampleCount": 97,
+  "scenario": "100,000 plain text items",
+  "scenarioId": "plain-text-100k",
+  "totalItems": 100000,
+  "viewportShift": 0,
+  "frameTimePassed": true,
+  "heavyBlankFramePassed": true,
+  "measurementQueuePassed": true,
+  "viewportShiftPassed": true
+}

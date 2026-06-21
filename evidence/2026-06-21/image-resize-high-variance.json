@@ -1,0 +1,20 @@
+{
+  "cpuThrottle": "none / 8ms budget",
+  "dataset": "image-20k",
+  "heavyBlankFrameCount": 0,
+  "heavyPlaceholderOnlyFrameCount": 0,
+  "library": "hetero-virtual",
+  "measuredAt": "2026-06-21T14:48:37.821Z",
+  "measurementQueue": 0,
+  "p95JsFrameTime": 0,
+  "renderedItems": 9,
+  "sampleCount": 0,
+  "scenario": "20,000 delayed image cards",
+  "scenarioId": "image-20k",
+  "totalItems": 20000,
+  "viewportShift": 0,
+  "frameTimePassed": false,
+  "heavyBlankFramePassed": true,
+  "measurementQueuePassed": true,
+  "viewportShiftPassed": true
+}

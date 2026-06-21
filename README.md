@@ -80,6 +80,7 @@ Known constraints:
 
 Use `TASKS.md` for the publish-gate task split and
 `docs/benchmarks.md` for comparison and evidence capture instructions.
+Captured browser evidence is stored under `evidence/`.
 
 ## Workspace
 

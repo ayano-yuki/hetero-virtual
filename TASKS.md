@@ -16,31 +16,46 @@ clear constraints.
 - [x] Add a benchmark evidence shape that can identify the measured library
 - [ ] Record real comparison evidence for at least one React library under the
   same browser and CPU throttle conditions
+  - Pending. `evidence/2026-06-21/` contains hetero-virtual evidence only.
 
 ## PPG-02 Prepend Anchor Stability
 
 - [x] Keep live prepend viewport shift visible in `/benchmark`
 - [x] Include `viewportShift` in copied benchmark evidence
-- [ ] Capture and store real browser evidence showing prepend shift `< 1px`
+- [x] Capture and store real browser evidence showing prepend shift `< 1px`
+  - Evidence: `evidence/2026-06-21/markdown-prepend-stability.json`
+  - Result: `viewportShift = 0.40px`
 
 ## PPG-03 Resize Correction Stability
 
 - [x] Keep resize correction viewport shift visible in `/benchmark`
 - [x] Include delayed image and high-variance scenarios in benchmark controls
-- [ ] Capture and store real browser evidence showing resize shift `< 1px`
+- [x] Capture and store real browser evidence showing resize shift `< 1px`
+  - Evidence: `evidence/2026-06-21/image-resize-high-variance.json`
+  - Result: `viewportShift = 0px`, `measurementQueue = 0`
 
 ## PPG-04 Markdown / Image / Heavy Mixed Demo Evidence
 
 - [x] Provide markdown/code, image, and chart/tool-result benchmark presets
 - [x] Include dataset and scenario identity in copied evidence
 - [x] Add heavy blank-frame and placeholder-only diagnostics
-- [ ] Capture and store real browser evidence for each heterogeneous preset
+- [x] Capture and store real browser evidence for each heterogeneous preset
+  - Evidence:
+    `evidence/2026-06-21/markdown-fast-scroll-incomplete.json`,
+    `evidence/2026-06-21/image-resize-high-variance.json`,
+    `evidence/2026-06-21/heavy-fast-scroll-incomplete.json`
+  - Note: markdown and heavy fast-scroll files are stability evidence only;
+    `sampleCount = 0`, so they do not satisfy p95 evidence.
 
 ## PPG-05 CPU Throttle Evidence
 
 - [x] Keep low-end 4ms budget control in `/benchmark`
 - [x] Include `cpuThrottle` and `p95JsFrameTime` in copied evidence
 - [ ] Capture and store Chrome CPU throttle 4x evidence JSON
+  - Partial evidence:
+    `evidence/2026-06-21/markdown-prepend-stability.json`,
+    `evidence/2026-06-21/markdown-continuous-prepend.json`
+  - Pending: CPU throttle 4x fast-scroll evidence with `sampleCount > 0`.
 
 ## PPG-06 README Constraints
 

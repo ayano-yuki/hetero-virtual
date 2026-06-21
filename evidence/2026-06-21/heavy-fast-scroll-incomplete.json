@@ -1,0 +1,20 @@
+{
+  "cpuThrottle": "none / 8ms budget",
+  "dataset": "heavy-10k",
+  "heavyBlankFrameCount": 0,
+  "heavyPlaceholderOnlyFrameCount": 0,
+  "library": "hetero-virtual",
+  "measuredAt": "2026-06-21T14:49:58.779Z",
+  "measurementQueue": 0,
+  "p95JsFrameTime": 0,
+  "renderedItems": 10,
+  "sampleCount": 0,
+  "scenario": "10,000 chart and tool-result items",
+  "scenarioId": "heavy-10k",
+  "totalItems": 10000,
+  "viewportShift": 0,
+  "frameTimePassed": false,
+  "heavyBlankFramePassed": true,
+  "measurementQueuePassed": true,
+  "viewportShiftPassed": true
+}
