@@ -8,6 +8,8 @@ Valid evidence:
 
 * `plain-text-fast-scroll.json` confirms plain text fast scroll p95 at
   `1.10ms`, queue `0`, and blank frames `0`.
+* `plain-text-fast-scroll-4x.json` confirms CPU throttle 4x / low-end 4ms
+  fast scroll p95 at `0.60ms`, queue `0`, and blank frames `0`.
 * `image-resize-high-variance.json` confirms resize/high-variance stability
   with queue `0`, viewport shift `0`, and blank frames `0`.
 * `markdown-prepend-stability.json` confirms prepend viewport shift
@@ -25,6 +27,5 @@ not satisfy the p95 frame-time gate.
 
 ## Remaining Browser Work
 
-* Capture CPU throttle 4x fast-scroll evidence with `sampleCount > 0`.
 * Capture at least one React library comparison under the same browser and CPU
   throttle conditions.

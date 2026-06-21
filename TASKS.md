@@ -51,11 +51,9 @@ clear constraints.
 
 - [x] Keep low-end 4ms budget control in `/benchmark`
 - [x] Include `cpuThrottle` and `p95JsFrameTime` in copied evidence
-- [ ] Capture and store Chrome CPU throttle 4x evidence JSON
-  - Partial evidence:
-    `evidence/2026-06-21/markdown-prepend-stability.json`,
-    `evidence/2026-06-21/markdown-continuous-prepend.json`
-  - Pending: CPU throttle 4x fast-scroll evidence with `sampleCount > 0`.
+- [x] Capture and store Chrome CPU throttle 4x evidence JSON
+  - Evidence: `evidence/2026-06-21/plain-text-fast-scroll-4x.json`
+  - Result: `p95JsFrameTime = 0.60ms`, `sampleCount = 96`
   - Benchmark sample capture has been stabilized for the next measurement run.
 
 ## PPG-06 README Constraints

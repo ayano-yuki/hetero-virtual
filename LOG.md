@@ -399,3 +399,22 @@ CPU throttle 4x fast scroll証跡で`sampleCount > 0`を得やすくするため
 - `evidence/README.md`
 - `TASKS.md`
 - `LOG.md`
+
+# CPU throttle 4x fast scroll証跡を保存
+
+Chrome CPU throttle 4xとlow-end 4ms budgetでsampleCount付きのfast scroll証跡を保存し、PPG-05を完了した。
+
+## 実装詳細
+
+- `plain-text-fast-scroll-4x.json`としてp95 0.60ms、sampleCount 96の証跡を保存
+- `evidence/2026-06-21/README.md`にCPU throttle 4x証跡の要約を追加
+- `TASKS.md`でPPG-05を完了状態へ更新
+- `Todo.md`のCPU throttle比較数値項目を完了状態へ更新
+
+## 変更ファイル
+
+- `evidence/2026-06-21/plain-text-fast-scroll-4x.json`
+- `evidence/2026-06-21/README.md`
+- `TASKS.md`
+- `Todo.md`
+- `LOG.md`
