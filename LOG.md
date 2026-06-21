@@ -418,3 +418,25 @@ Chrome CPU throttle 4xとlow-end 4ms budgetでsampleCount付きのfast scroll証
 - `TASKS.md`
 - `Todo.md`
 - `LOG.md`
+
+# Virtualizer library比較表を追加
+
+Public Npm Publish GateのPPG-01に向けて、React Virtuoso、react-window、vue-virtual-scroller、TanStack Virtualとの比較軸と証跡トラッキングを追加した。
+
+## 実装詳細
+
+- `docs/virtualizer-comparison.md`を追加し、ユースケース別の既存ライブラリ比較とhetero-virtualの立ち位置を整理
+- `evidence/comparisons/virtualizer-library-comparison.md`を追加し、実測比較証跡の保存先と推奨シナリオを定義
+- benchmark docsの比較対象をReact Virtuoso、react-window、vue-virtual-scroller、TanStack Virtualへ更新
+- READMEのdocumentation linksにvirtualizer comparisonを追加
+- `TASKS.md`に比較表作成完了とReact Virtuosoを最初の実測対象にする方針を追記
+- PPG-01の実測比較証跡は未完のまま維持
+
+## 変更ファイル
+
+- `docs/virtualizer-comparison.md`
+- `docs/benchmarks.md`
+- `evidence/comparisons/virtualizer-library-comparison.md`
+- `README.md`
+- `TASKS.md`
+- `LOG.md`

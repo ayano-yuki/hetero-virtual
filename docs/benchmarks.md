@@ -75,22 +75,28 @@ libraries by capability and evidence, not by a single headline number.
 
 Comparison targets:
 
-* TanStack Virtual
+* React Virtuoso
 * react-window
 * vue-virtual-scroller
+* TanStack Virtual
 
 Comparison axes:
 
+* chat and complex feed fit
+* fixed/simple list fit
+* framework support
 * heterogeneous DOM and per-type adapter metadata
 * dynamic height correction
 * prepend anchor preservation
 * heavy item hydration while scrolling
 * reproducible evidence under the same browser and CPU throttle conditions
 
-React libraries should be measured under the same `/benchmark` browser
-conditions whenever possible. Vue libraries are tracked as feature and
-reproduction comparisons in this React/Next workspace until a Vue example is
-explicitly added.
+Use `docs/virtualizer-comparison.md` for the positioning matrix and
+`evidence/comparisons/virtualizer-library-comparison.md` for comparison
+evidence tracking. React Virtuoso is the recommended first real browser
+comparison because it is closest to the chat and complex-feed use case. Vue
+libraries are tracked as feature and reproduction comparisons in this
+React/Next workspace until a Vue example is explicitly added.
 
 ## Manual Gate Capture
 

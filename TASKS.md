@@ -9,14 +9,17 @@ clear constraints.
 
 ## PPG-01 Similar Library Comparison
 
-- [x] Define comparison targets: TanStack Virtual, react-window,
-  vue-virtual-scroller
+- [x] Define comparison targets: React Virtuoso, react-window,
+  vue-virtual-scroller, TanStack Virtual
 - [x] Document comparison axes: heterogeneous DOM, dynamic height correction,
   prepend anchor preservation, heavy item hydration, evidence reproducibility
 - [x] Add a benchmark evidence shape that can identify the measured library
+- [x] Add comparison matrix for React Virtuoso, react-window,
+  vue-virtual-scroller, TanStack Virtual, and hetero-virtual
 - [ ] Record real comparison evidence for at least one React library under the
   same browser and CPU throttle conditions
   - Pending. `evidence/2026-06-21/` contains hetero-virtual evidence only.
+  - Recommended first target: React Virtuoso.
 
 ## PPG-02 Prepend Anchor Stability
 

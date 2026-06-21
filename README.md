@@ -19,6 +19,7 @@ A jank-resistant virtualizer for heterogeneous, bidirectional, dynamic-height li
 * [React API](docs/react-api.md)
 * [Demo & Examples](docs/demo.md)
 * [Benchmarks & Evidence](docs/benchmarks.md)
+* [Virtualizer Comparison](docs/virtualizer-comparison.md)
 * [Private Package Trial](docs/private-package-trial.md)
 * [Strategy](docs/strategy.md)
 
