@@ -46,6 +46,28 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
+  apps/private-trial:
+    dependencies:
+      '@hetero-virtual/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@hetero-virtual/react':
+        specifier: workspace:*
+        version: link:../../packages/react
+      react:
+        specifier: ^19.1.0
+        version: 19.2.7
+    devDependencies:
+      '@types/react':
+        specifier: ^19.1.6
+        version: 19.2.17
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.1
+        version: 3.2.6(@types/node@22.19.20)
+
   packages/core:
     devDependencies:
       typescript:

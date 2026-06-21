@@ -28,15 +28,15 @@ export type VirtualItem<TItem> = {
 }
 
 export type VirtualizerSnapshot<TItem> = {
-  items: readonly VirtualItem<TItem>[]
   measurementCount: number
   renderQueueSize: number
   totalSize: number
+  virtualItems: readonly VirtualItem<TItem>[]
 }
 
 export type VirtualizerStoreOptions<TItem, TRenderOutput> = {
   adapters: AdapterRegistry<TItem, TRenderOutput>
-  getEstimatedHeight: (item: TItem) => number
+  estimateHeight: (item: TItem) => number
   getKey: (item: TItem) => string
   getType: (item: TItem) => string
   items: readonly TItem[]
@@ -55,16 +55,16 @@ export type ViewportState = {
 }
 
 const EMPTY_SNAPSHOT: VirtualizerSnapshot<never> = {
-  items: [],
   measurementCount: 0,
   renderQueueSize: 0,
   totalSize: 0,
+  virtualItems: [],
 }
 
 export class VirtualizerStore<TItem, TRenderOutput> {
   private readonly listeners = new Set<() => void>()
   private readonly adapters: AdapterRegistry<TItem, TRenderOutput>
-  private readonly getEstimatedHeight: (item: TItem) => number
+  private readonly estimateHeight: (item: TItem) => number
   private readonly getKey: (item: TItem) => string
   private readonly getType: (item: TItem) => string
   private readonly overscan: RangeCalculatorOptions
@@ -90,7 +90,7 @@ export class VirtualizerStore<TItem, TRenderOutput> {
 
   constructor(options: VirtualizerStoreOptions<TItem, TRenderOutput>) {
     this.adapters = options.adapters
-    this.getEstimatedHeight = options.getEstimatedHeight
+    this.estimateHeight = options.estimateHeight
     this.getKey = options.getKey
     this.getType = options.getType
     this.overscan = options.overscan ?? {}
@@ -127,7 +127,7 @@ export class VirtualizerStore<TItem, TRenderOutput> {
     this.indexById = new Map()
     const heightItems = items.map((item, index) => {
       const id = this.getKey(item)
-      const size = this.sizeById.get(id) ?? this.getEstimatedHeight(item)
+      const size = this.sizeById.get(id) ?? this.estimateHeight(item)
 
       assertPositiveFinite(size, `estimated height for ${id}`)
       this.indexById.set(id, index)
@@ -245,7 +245,7 @@ export class VirtualizerStore<TItem, TRenderOutput> {
         const id = this.getKey(item)
         const type = this.getType(item)
         const start = this.heightTree.offsetOf(id) ?? 0
-        const size = this.sizeById.get(id) ?? this.getEstimatedHeight(item)
+        const size = this.sizeById.get(id) ?? this.estimateHeight(item)
         const end = start + size
         const isVisible =
           end > this.viewport.scrollTop && start < viewportEnd
@@ -293,10 +293,10 @@ export class VirtualizerStore<TItem, TRenderOutput> {
     }
 
     this.snapshot = {
-      items: virtualItems,
       measurementCount: this.measurementCount,
       renderQueueSize: this.renderScheduler.size,
       totalSize: this.heightTree.totalHeight(),
+      virtualItems,
     }
 
     this.emit()

@@ -175,7 +175,7 @@ function BenchmarkVirtualizer({
     getScrollElement,
     getKey: (item) => item.id,
     getType: (item) => item.type,
-    getEstimatedHeight: (item) => item.height,
+    estimateHeight: (item) => item.height,
     adapters: demoAdapterRegistry,
     lowEnd: lowEndMode,
     overscan: {
@@ -192,9 +192,9 @@ function BenchmarkVirtualizer({
   const packageVirtualItemsById = useMemo(
     () =>
       new Map(
-        reactVirtualizer.items.map((item) => [item.id, item] as const),
-      ),
-    [reactVirtualizer.items],
+        reactVirtualizer.virtualItems.map((item) => [item.id, item] as const),
+    ),
+    [reactVirtualizer.virtualItems],
   )
 
   renderWindowRef.current = renderWindow
@@ -1083,7 +1083,7 @@ function BenchmarkVirtualizer({
         />
         <Metric
           label="Hydrated visible"
-          value={reactVirtualizer.items
+          value={reactVirtualizer.virtualItems
             .filter((item) => item.level >= 2)
             .length.toString()}
         />

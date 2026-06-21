@@ -1,0 +1,20 @@
+{
+  "name": "private-trial",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hetero-virtual/core": "workspace:*",
+    "@hetero-virtual/react": "workspace:*",
+    "react": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.6",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.1"
+  }
+}

@@ -28,7 +28,7 @@ import {
 
 export type UseHeteroVirtualizerOptions<TItem> = {
   adapters: AdapterRegistry<TItem, ReactNode>
-  getEstimatedHeight: (item: TItem) => number
+  estimateHeight: (item: TItem) => number
   getKey: (item: TItem) => string
   getScrollElement: () => HTMLElement | null
   getType: (item: TItem) => string

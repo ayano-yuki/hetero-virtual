@@ -294,3 +294,31 @@ Chrome CPU throttle 4xとlow-end 4ms budgetでfast scrollを計測し、p95 JS f
 - `README.md`
 - `Todo.md`
 - `LOG.md`
+
+# Phase 10 の private package trial を実装
+
+外部利用を想定したprivate workspace packageを追加し、core/reactのworkspace dependency利用と2つのAPI破壊変更を検証した。
+
+## 実装詳細
+
+- `apps/private-trial`を追加し、`@hetero-virtual/core`と`@hetero-virtual/react`を`workspace:*`で利用
+- trial packageからpublic entrypoint経由でadapter registry、`VirtualizerStore`、hook option型を利用
+- private trial smoke testsでworkspace package利用、visible range、hook option shapeを検証
+- `getEstimatedHeight`を`estimateHeight`へリネームし、core adapter contractと命名を統一
+- `VirtualizerSnapshot.items`を`virtualItems`へリネームし、入力itemsとの混同を回避
+- APIの不自然な点と破壊変更理由を`docs/private-package-trial.md`へ記録
+- READMEとTodoにPhase 10の成果を反映
+
+## 変更ファイル
+
+- `apps/private-trial/**`
+- `packages/react/src/VirtualizerStore.ts`
+- `packages/react/src/VirtualizerStore.test.ts`
+- `packages/react/src/useHeteroVirtualizer.tsx`
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `docs/react-api.md`
+- `docs/demo.md`
+- `docs/private-package-trial.md`
+- `README.md`
+- `Todo.md`
+- `LOG.md`

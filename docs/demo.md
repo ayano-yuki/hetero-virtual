@@ -127,7 +127,7 @@ export default function Page() {
             position: "relative",
           }}
         >
-          {virtualizer.items.map(virtualItem => (
+          {virtualizer.virtualItems.map(virtualItem => (
             <div
               key={virtualItem.key}
               data-virtual-id={virtualItem.id}

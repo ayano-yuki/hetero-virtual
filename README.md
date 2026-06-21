@@ -19,6 +19,7 @@ A jank-resistant virtualizer for heterogeneous, bidirectional, dynamic-height li
 * [React API](docs/react-api.md)
 * [Demo & Examples](docs/demo.md)
 * [Benchmarks & Evidence](docs/benchmarks.md)
+* [Private Package Trial](docs/private-package-trial.md)
 * [Strategy](docs/strategy.md)
 
 ## Quick start
@@ -60,6 +61,7 @@ copyable evidence JSON snapshot.
 ```txt
 apps/
   demo-next/   Next.js demo and benchmark pages
+  private-trial/ workspace package consumption trial
 packages/
   core/        Framework-independent virtualizer core
   react/       React and DOM integration

@@ -12,7 +12,7 @@ const virtualizer = useHeteroVirtualizer({
   getScrollElement: () => parentRef.current,
   getKey: item => item.id,
   getType: item => item.type,
-  getEstimatedHeight: item => item.height,
+  estimateHeight: item => item.height,
   adapters: adapterRegistry,
   lowEnd,
   overscan: {
@@ -47,7 +47,7 @@ The hook connects:
       position: "relative",
     }}
   >
-    {virtualizer.items.map(virtualItem => (
+    {virtualizer.virtualItems.map(virtualItem => (
       <HeteroVirtualItem
         key={virtualItem.key}
         virtualItem={virtualItem}
@@ -64,7 +64,7 @@ the adapter output for the current placeholder, shell, light, or full level.
 
 ## Returned State
 
-* `items` - visible and overscan item metadata
+* `virtualItems` - visible and overscan item metadata
 * `totalSize` - total spacer height
 * `renderQueueSize` - pending scheduler tasks
 * `measurementCount` - accepted DOM height corrections

@@ -163,21 +163,22 @@ core は React 非依存のままにし、React 側は hooks と DOM integration
 
 npm 公開前に、自分の別プロジェクトで使って API の痛みを見る。
 
-- [ ] `@hetero-virtual/core` を workspace package として使う
-- [ ] `@hetero-virtual/react` を workspace package として使う
-- [ ] 別プロジェクトから GitHub dependency または workspace dependency で利用する
-- [ ] API が不自然な箇所を記録する
-- [ ] API を最低 2 回は壊して見直す
+- [x] `@hetero-virtual/core` を workspace package として使う
+- [x] `@hetero-virtual/react` を workspace package として使う
+- [x] 別プロジェクトから GitHub dependency または workspace dependency で利用する
+- [x] API が不自然な箇所を記録する
+- [x] API を最低 2 回は壊して見直す
 
 ## Public Npm Publish Gate
 
 以下を満たすまで npm publish はしない。
 
+- [ ] 既存の類似ライブラリとの性能比較ができ、強みがある状態になっている
 - [ ] prepend anchor が安定している
 - [ ] resize correction が安定している
 - [ ] markdown / image / heavy item 混在 demo がある
 - [ ] CPU throttle で比較動画または数値がある
-- [ ] API が最低 2 回は壊れている
+- [x] API が最低 2 回は壊れている
 - [ ] README に制約が明記されている
 - [ ] examples がある
 

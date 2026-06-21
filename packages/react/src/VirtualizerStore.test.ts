@@ -34,7 +34,7 @@ const adapter: VirtualItemAdapter<Item, string> = {
 function createStore(items = createItems(20)) {
   return new VirtualizerStore({
     adapters: new AdapterRegistry([adapter]),
-    getEstimatedHeight: (item: Item) => item.height,
+    estimateHeight: (item: Item) => item.height,
     getKey: (item: Item) => item.id,
     getType: (item: Item) => item.type,
     items,
@@ -59,12 +59,12 @@ describe("VirtualizerStore", () => {
     const snapshot = store.getSnapshot()
 
     expect(snapshot.totalSize).toBe(1_000)
-    expect(snapshot.items.map((item) => item.id)).toEqual([
+    expect(snapshot.virtualItems.map((item) => item.id)).toEqual([
       "item-3",
       "item-4",
       "item-5",
     ])
-    expect(snapshot.items[0].start).toBe(150)
+    expect(snapshot.virtualItems[0].start).toBe(150)
   })
 
   it("notifies subscribers after viewport and measurement updates", () => {
@@ -94,15 +94,17 @@ describe("VirtualizerStore", () => {
       width: 800,
     })
 
-    expect(store.getSnapshot().items[0].level).toBe(0)
+    expect(store.getSnapshot().virtualItems[0].level).toBe(0)
 
     store.processRenderQueue(() => 0)
-    expect(store.getSnapshot().items[0].level).toBe(1)
+    expect(store.getSnapshot().virtualItems[0].level).toBe(1)
 
     store.processRenderQueue(() => 0)
     store.processRenderQueue(() => 0)
-    expect(store.getSnapshot().items[0].level).toBe(3)
-    expect(store.render(store.getSnapshot().items[0])).toBe("full:item-0")
+    expect(store.getSnapshot().virtualItems[0].level).toBe(3)
+    expect(store.render(store.getSnapshot().virtualItems[0])).toBe(
+      "full:item-0",
+    )
   })
 
   it("keeps measured sizes and render levels when items are synchronized", () => {
