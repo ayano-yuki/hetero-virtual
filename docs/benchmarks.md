@@ -55,6 +55,10 @@ Captured evidence is stored in dated folders under `evidence/`. Files ending
 in `-incomplete.json` are useful stability records, but they are not valid p95
 frame-time evidence when `sampleCount` is `0`.
 
+For fast-scroll evidence, `sampleCount` must be greater than `0`. If it is `0`,
+run fast scroll again after confirming the low-end budget button is active and
+the evidence panel shows frame samples increasing.
+
 Target thresholds:
 
 | Metric | Target |
@@ -96,6 +100,7 @@ explicitly added.
 4. Select the low-end 4ms budget.
 5. Run fast scroll, continuous prepend, delayed image loading, high-variance
    correction, and the heavy dataset.
-6. Wait for the queue to settle, then copy the evidence JSON.
-7. Record the copied JSON with the scenario name and browser details before
+6. For p95 evidence, confirm that **Frame samples** is greater than `0`.
+7. Wait for the queue to settle, then copy the evidence JSON.
+8. Record the copied JSON with the scenario name and browser details before
    marking a gate task complete.

@@ -376,3 +376,26 @@ Public Npm Publish GateをTodoとは別の実行タスクへ分割し、benchmar
 - `README.md`
 - `docs/benchmarks.md`
 - `LOG.md`
+
+# Benchmark fast scroll のframe sample取得を安定化
+
+CPU throttle 4x fast scroll証跡で`sampleCount > 0`を得やすくするため、プログラムスクロール中のscheduler起動とframe sample表示を強化した。
+
+## 実装詳細
+
+- fast scroll開始時にp95、last frame、frame samplesをリセット
+- programmatic scrollの各frameでscroll処理とrender task登録を明示的に実行
+- benchmark metricsにframe sample数を表示
+- p95 evidence表示にsample数を含め、`sampleCount = 0`の未成立を見分けやすくした
+- evidence evaluator testsで`sampleCount = 0`時のp95未成立と他判定の独立性を固定
+- docsとevidence READMEにfast scroll再計測時の`sampleCount > 0`条件を追記
+- `TASKS.md`にPPG-05のsample capture安定化済み状態を追記
+
+## 変更ファイル
+
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `apps/demo-next/app/benchmark/benchmarkScenarios.test.ts`
+- `docs/benchmarks.md`
+- `evidence/README.md`
+- `TASKS.md`
+- `LOG.md`

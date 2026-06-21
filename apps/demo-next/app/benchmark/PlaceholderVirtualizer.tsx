@@ -275,6 +275,12 @@ function BenchmarkVirtualizer({
     setHydratedCount(count)
   }, [])
 
+  const resetFrameEvidence = useCallback(() => {
+    frameSamplesRef.current = []
+    setLastFrameTime(0)
+    setP95FrameTime(0)
+  }, [])
+
   const recordBlankFrameDiagnostics = useCallback(() => {
     const visible = visibleItemsRef.current
 
@@ -718,6 +724,7 @@ function BenchmarkVirtualizer({
       return
     }
 
+    resetFrameEvidence()
     setIsFastScrolling(true)
     let remainingFrames = FAST_SCROLL_FRAME_COUNT
     let direction = scrollRoot.scrollTop >= scrollRoot.scrollHeight / 2 ? -1 : 1
@@ -740,12 +747,14 @@ function BenchmarkVirtualizer({
       }
 
       currentRoot.scrollTop = clamp(nextScrollTop, 0, maximumScrollTop)
+      handleScroll()
+      enqueueVisibleRenderTasks()
       remainingFrames -= 1
       fastScrollFrameRef.current = requestAnimationFrame(scrollFrame)
     }
 
     fastScrollFrameRef.current = requestAnimationFrame(scrollFrame)
-  }, [])
+  }, [enqueueVisibleRenderTasks, handleScroll, resetFrameEvidence])
 
   const getMeasureRef = useCallback((id: string) => {
     const existing = measureRefsRef.current.get(id)
@@ -1129,6 +1138,10 @@ function BenchmarkVirtualizer({
           label="Last scheduler frame"
           value={`${lastFrameTime.toFixed(2)} ms`}
         />
+        <Metric
+          label="Frame samples"
+          value={frameSamplesRef.current.length.toString()}
+        />
         <Metric label="p95 scheduler JS" value={`${p95FrameTime.toFixed(2)} ms`} />
         <Metric
           label="Blank frames"
@@ -1152,7 +1165,7 @@ function BenchmarkVirtualizer({
         <EvidenceStatus
           label="p95 JS"
           passed={evidenceResult.frameTimePassed}
-          value={`${p95FrameTime.toFixed(2)} ms / <= ${BENCHMARK_THRESHOLDS.p95JsFrameTime} ms`}
+          value={`${p95FrameTime.toFixed(2)} ms / ${frameSamplesRef.current.length} samples / <= ${BENCHMARK_THRESHOLDS.p95JsFrameTime} ms`}
         />
         <EvidenceStatus
           label="Viewport shift"

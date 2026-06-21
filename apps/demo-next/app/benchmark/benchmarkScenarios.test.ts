@@ -59,6 +59,30 @@ describe("benchmark scenarios", () => {
   })
 
   it("does not pass frame time before samples exist", () => {
+    const result = evaluateBenchmarkEvidence({
+      cpuThrottle: "none / 8ms budget",
+      dataset: "plain-text-100k",
+      heavyBlankFrameCount: 0,
+      heavyPlaceholderOnlyFrameCount: 0,
+      library: "hetero-virtual",
+      measuredAt: "2026-06-16T00:00:00.000Z",
+      measurementQueue: 0,
+      p95JsFrameTime: 0,
+      renderedItems: 20,
+      sampleCount: 0,
+      scenario: "idle",
+      scenarioId: "plain-text-100k",
+      totalItems: 100_000,
+      viewportShift: 0,
+    })
+
+    expect(result.frameTimePassed).toBe(false)
+    expect(result.heavyBlankFramePassed).toBe(true)
+    expect(result.measurementQueuePassed).toBe(true)
+    expect(result.viewportShiftPassed).toBe(true)
+  })
+
+  it("passes frame time only when samples exist", () => {
     expect(
       evaluateBenchmarkEvidence({
         cpuThrottle: "none / 8ms budget",
@@ -68,15 +92,15 @@ describe("benchmark scenarios", () => {
         library: "hetero-virtual",
         measuredAt: "2026-06-16T00:00:00.000Z",
         measurementQueue: 0,
-        p95JsFrameTime: 0,
+        p95JsFrameTime: 5.5,
         renderedItems: 20,
-        sampleCount: 0,
-        scenario: "idle",
+        sampleCount: 3,
+        scenario: "fast scroll",
         scenarioId: "plain-text-100k",
         totalItems: 100_000,
         viewportShift: 0,
       }).frameTimePassed,
-    ).toBe(false)
+    ).toBe(true)
   })
 
   it("evaluates queue and blank-frame gate diagnostics", () => {

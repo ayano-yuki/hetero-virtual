@@ -33,6 +33,10 @@ For a complete publish-gate performance evidence file:
 valid. Stability evidence can still be useful with `sampleCount: 0` when the
 task is specifically about viewport shift, measurement queue, or blank frames.
 
+If a fast-scroll capture produces `sampleCount: 0`, repeat the run. Confirm
+that the benchmark panel shows **Frame samples** increasing before copying the
+JSON.
+
 ## Manual Capture
 
 1. Run `pnpm dev`.

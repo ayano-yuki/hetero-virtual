@@ -56,6 +56,7 @@ clear constraints.
     `evidence/2026-06-21/markdown-prepend-stability.json`,
     `evidence/2026-06-21/markdown-continuous-prepend.json`
   - Pending: CPU throttle 4x fast-scroll evidence with `sampleCount > 0`.
+  - Benchmark sample capture has been stabilized for the next measurement run.
 
 ## PPG-06 README Constraints
 
