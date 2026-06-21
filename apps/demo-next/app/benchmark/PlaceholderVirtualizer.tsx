@@ -30,6 +30,7 @@ import {
   type DemoItemType,
 } from "./adapters"
 import {
+  BENCHMARK_THRESHOLDS,
   BENCHMARK_SCENARIOS,
   DEFAULT_BENCHMARK_SCENARIO,
   evaluateBenchmarkEvidence,
@@ -128,6 +129,8 @@ function BenchmarkVirtualizer({
   const lowEndModeRef = useRef(false)
   const renderQueueSizeRef = useRef(0)
   const hydratedCountRef = useRef(0)
+  const heavyBlankFrameCountRef = useRef(0)
+  const heavyPlaceholderOnlyFrameCountRef = useRef(0)
   const frameSamplesRef = useRef<number[]>([])
   const latestScrollRef = useRef({
     direction: "none" as ScrollDirection,
@@ -158,6 +161,11 @@ function BenchmarkVirtualizer({
   const [scrollMode, setScrollMode] = useState<ScrollMode>("idle")
   const [renderQueueSize, setRenderQueueSize] = useState(0)
   const [hydratedCount, setHydratedCount] = useState(0)
+  const [heavyBlankFrameCount, setHeavyBlankFrameCount] = useState(0)
+  const [
+    heavyPlaceholderOnlyFrameCount,
+    setHeavyPlaceholderOnlyFrameCount,
+  ] = useState(0)
   const [p95FrameTime, setP95FrameTime] = useState(0)
   const [lastFrameTime, setLastFrameTime] = useState(0)
   const [lowEndMode, setLowEndMode] = useState(false)
@@ -267,6 +275,32 @@ function BenchmarkVirtualizer({
     setHydratedCount(count)
   }, [])
 
+  const recordBlankFrameDiagnostics = useCallback(() => {
+    const visible = visibleItemsRef.current
+
+    if (visible.length === 0) {
+      heavyBlankFrameCountRef.current += 1
+      setHeavyBlankFrameCount(heavyBlankFrameCountRef.current)
+      return
+    }
+
+    const heavyVisibleItems = visible.filter((item) =>
+      isHeavyItemType(item.type),
+    )
+
+    if (
+      heavyVisibleItems.length > 0 &&
+      heavyVisibleItems.every(
+        (item) => runtime.renderScheduler.getLevel(item.id) === 0,
+      )
+    ) {
+      heavyPlaceholderOnlyFrameCountRef.current += 1
+      setHeavyPlaceholderOnlyFrameCount(
+        heavyPlaceholderOnlyFrameCountRef.current,
+      )
+    }
+  }, [runtime])
+
   const scheduleRenderFrame = useCallback(() => {
     if (renderFrameRef.current !== null) {
       return
@@ -363,6 +397,7 @@ function BenchmarkVirtualizer({
         (item) => runtime.renderScheduler.getLevel(item.id) >= 2,
       ).length,
     )
+    recordBlankFrameDiagnostics()
 
     if (result.appliedCount > 0) {
       setRenderVersion((version) => version + 1)
@@ -372,6 +407,7 @@ function BenchmarkVirtualizer({
     runtime,
     scheduleRenderFrame,
     updateHydratedCount,
+    recordBlankFrameDiagnostics,
     updateRenderQueueSize,
   ])
   processRenderQueueRef.current = processRenderQueue
@@ -947,24 +983,26 @@ function BenchmarkVirtualizer({
     Math.abs(resizeViewportShift),
   )
   const evidenceResult = evaluateBenchmarkEvidence({
+    cpuThrottle: lowEndMode ? "4x external / 4ms budget" : "none / 8ms budget",
+    dataset: scenario.id,
+    heavyBlankFrameCount,
+    heavyPlaceholderOnlyFrameCount,
+    library: "hetero-virtual",
     measuredAt: new Date().toISOString(),
     measurementQueue: measurementQueueSize,
     p95JsFrameTime: p95FrameTime,
     renderedItems: visibleItems.length,
     sampleCount: frameSamplesRef.current.length,
+    scenario: scenario.label,
     scenarioId: scenario.id,
     totalItems: runtime.items.length,
     viewportShift,
   })
 
   const handleCopyEvidence = async () => {
-    const evidence = {
-      ...evidenceResult,
-      cpuThrottle: lowEndMode ? "4x external / 4ms budget" : "none / 8ms budget",
-      scenario: scenario.label,
-    }
-
-    await navigator.clipboard.writeText(JSON.stringify(evidence, null, 2))
+    await navigator.clipboard.writeText(
+      JSON.stringify(evidenceResult, null, 2),
+    )
     setCopyStatus("Copied")
     window.setTimeout(() => setCopyStatus("Copy evidence JSON"), 1_500)
   }
@@ -1092,6 +1130,14 @@ function BenchmarkVirtualizer({
           value={`${lastFrameTime.toFixed(2)} ms`}
         />
         <Metric label="p95 scheduler JS" value={`${p95FrameTime.toFixed(2)} ms`} />
+        <Metric
+          label="Blank frames"
+          value={heavyBlankFrameCount.toString()}
+        />
+        <Metric
+          label="Heavy placeholder-only"
+          value={heavyPlaceholderOnlyFrameCount.toString()}
+        />
       </div>
       <p className="schedulerNote">
         Scheduler-only timing. Use Chrome DevTools CPU throttling at 4x with
@@ -1106,17 +1152,22 @@ function BenchmarkVirtualizer({
         <EvidenceStatus
           label="p95 JS"
           passed={evidenceResult.frameTimePassed}
-          value={`${p95FrameTime.toFixed(2)} ms / <= 6 ms`}
+          value={`${p95FrameTime.toFixed(2)} ms / <= ${BENCHMARK_THRESHOLDS.p95JsFrameTime} ms`}
         />
         <EvidenceStatus
           label="Viewport shift"
           passed={evidenceResult.viewportShiftPassed}
-          value={`${viewportShift.toFixed(2)} px / < 1 px`}
+          value={`${viewportShift.toFixed(2)} px / < ${BENCHMARK_THRESHOLDS.viewportShift} px`}
         />
         <EvidenceStatus
           label="Rendered / queue"
-          passed={measurementQueueSize === 0}
+          passed={evidenceResult.measurementQueuePassed}
           value={`${visibleItems.length} / ${measurementQueueSize}`}
+        />
+        <EvidenceStatus
+          label="Blank frames"
+          passed={evidenceResult.heavyBlankFramePassed}
+          value={`${heavyBlankFrameCount} / ${BENCHMARK_THRESHOLDS.heavyBlankFrameCount}`}
         />
         <button type="button" onClick={handleCopyEvidence}>
           {copyStatus}
@@ -1302,6 +1353,10 @@ function getTypeLabel(type: DemoItemType): string {
   }
 
   return `${type[0].toUpperCase()}${type.slice(1)}`
+}
+
+function isHeavyItemType(type: DemoItemType): boolean {
+  return type === "chart" || type === "image" || type === "tool-result"
 }
 
 function rebuildIndex(runtime: Runtime): void {

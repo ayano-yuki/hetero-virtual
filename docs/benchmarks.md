@@ -36,10 +36,15 @@ the low-end 4ms budget before running fast scroll.
 
 The evidence panel reports:
 
+* measured library name
+* dataset and scenario identity
+* CPU throttle label
 * p95 scheduler JS time
 * maximum prepend or resize viewport shift
 * rendered item count
 * measurement queue length
+* blank frame count
+* heavy placeholder-only frame count
 * pass or check status for the documented thresholds
 
 Use **Copy evidence JSON** after the scenario settles. The copied record
@@ -53,3 +58,40 @@ Target thresholds:
 | p95 scheduler JS | <= 6ms |
 | viewport shift | < 1px |
 | measurement queue after settling | 0 |
+| blank frames | 0 |
+
+## Similar Library Comparison
+
+The publish gate compares `hetero-virtual` against existing virtual scrolling
+libraries by capability and evidence, not by a single headline number.
+
+Comparison targets:
+
+* TanStack Virtual
+* react-window
+* vue-virtual-scroller
+
+Comparison axes:
+
+* heterogeneous DOM and per-type adapter metadata
+* dynamic height correction
+* prepend anchor preservation
+* heavy item hydration while scrolling
+* reproducible evidence under the same browser and CPU throttle conditions
+
+React libraries should be measured under the same `/benchmark` browser
+conditions whenever possible. Vue libraries are tracked as feature and
+reproduction comparisons in this React/Next workspace until a Vue example is
+explicitly added.
+
+## Manual Gate Capture
+
+1. Run `pnpm dev`.
+2. Open `http://localhost:3000/benchmark`.
+3. In Chrome DevTools, set CPU throttling to 4x.
+4. Select the low-end 4ms budget.
+5. Run fast scroll, continuous prepend, delayed image loading, high-variance
+   correction, and the heavy dataset.
+6. Wait for the queue to settle, then copy the evidence JSON.
+7. Record the copied JSON with the scenario name and browser details before
+   marking a gate task complete.

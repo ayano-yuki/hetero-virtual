@@ -37,11 +37,17 @@ describe("benchmark scenarios", () => {
   it("evaluates the documented performance thresholds", () => {
     expect(
       evaluateBenchmarkEvidence({
+        cpuThrottle: "4x external / 4ms budget",
+        dataset: "plain-text-100k",
+        heavyBlankFrameCount: 0,
+        heavyPlaceholderOnlyFrameCount: 0,
+        library: "hetero-virtual",
         measuredAt: "2026-06-16T00:00:00.000Z",
         measurementQueue: 0,
         p95JsFrameTime: 6,
         renderedItems: 20,
         sampleCount: 120,
+        scenario: "fast scroll",
         scenarioId: "plain-text-100k",
         totalItems: 100_000,
         viewportShift: 0.99,
@@ -55,16 +61,46 @@ describe("benchmark scenarios", () => {
   it("does not pass frame time before samples exist", () => {
     expect(
       evaluateBenchmarkEvidence({
+        cpuThrottle: "none / 8ms budget",
+        dataset: "plain-text-100k",
+        heavyBlankFrameCount: 0,
+        heavyPlaceholderOnlyFrameCount: 0,
+        library: "hetero-virtual",
         measuredAt: "2026-06-16T00:00:00.000Z",
         measurementQueue: 0,
         p95JsFrameTime: 0,
         renderedItems: 20,
         sampleCount: 0,
+        scenario: "idle",
         scenarioId: "plain-text-100k",
         totalItems: 100_000,
         viewportShift: 0,
       }).frameTimePassed,
     ).toBe(false)
+  })
+
+  it("evaluates queue and blank-frame gate diagnostics", () => {
+    expect(
+      evaluateBenchmarkEvidence({
+        cpuThrottle: "4x external / 4ms budget",
+        dataset: "heavy-10k",
+        heavyBlankFrameCount: 1,
+        heavyPlaceholderOnlyFrameCount: 3,
+        library: "hetero-virtual",
+        measuredAt: "2026-06-16T00:00:00.000Z",
+        measurementQueue: 1,
+        p95JsFrameTime: 5,
+        renderedItems: 18,
+        sampleCount: 120,
+        scenario: "heavy fast scroll",
+        scenarioId: "heavy-10k",
+        totalItems: 10_000,
+        viewportShift: 0,
+      }),
+    ).toMatchObject({
+      heavyBlankFramePassed: false,
+      measurementQueuePassed: false,
+    })
   })
 
   it("rejects an unknown scenario", () => {

@@ -56,12 +56,39 @@ Phase 9 adds selectable 100k text, 50k markdown, 20k image, and 10k heavy
 presets, continuous mutation controls, high-variance correction, and a
 copyable evidence JSON snapshot.
 
+## Publish Gate
+
+This package is not ready for public npm release yet. The current gate is to
+make the project reviewable beside established virtual scrolling libraries,
+not to ship a polished package.
+
+Strengths being validated:
+
+* heterogeneous item types with explicit adapter contracts
+* dynamic height correction with viewport shift evidence
+* prepend anchor preservation
+* progressive hydration for expensive rows
+* reproducible browser evidence through `/benchmark`
+
+Known constraints:
+
+* React is the only framework integration in this repository.
+* The public package shape is still private and may break again.
+* Benchmarks currently require manual Chrome CPU throttling for final evidence.
+* This is not intended for uniform fixed-height lists where simpler libraries
+  are already excellent.
+
+Use `TASKS.md` for the publish-gate task split and
+`docs/benchmarks.md` for comparison and evidence capture instructions.
+
 ## Workspace
 
 ```txt
 apps/
   demo-next/   Next.js demo and benchmark pages
   private-trial/ workspace package consumption trial
+examples/
+  next-basic/  minimal external-consumer example
 packages/
   core/        Framework-independent virtualizer core
   react/       React and DOM integration

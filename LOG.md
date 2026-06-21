@@ -322,3 +322,34 @@ Chrome CPU throttle 4xとlow-end 4ms budgetでfast scrollを計測し、p95 JS f
 - `README.md`
 - `Todo.md`
 - `LOG.md`
+
+# Public Npm Publish Gate の実行タスクと証跡基盤を追加
+
+Public Npm Publish GateをTodoとは別の実行タスクへ分割し、benchmark evidence、README制約、最小Next.js exampleを公開判断向けに整備した。
+
+## 実装詳細
+
+- `TASKS.md`を追加し、PPG-01からPPG-07までの公開前gateタスクを分離
+- benchmark evidenceにlibrary、dataset、scenario、cpuThrottle、blank frame、heavy placeholder-only診断を追加
+- evidence evaluatorにp95、viewport shift、measurement queue、blank frame判定を追加
+- `/benchmark`の表示とcopy evidence JSONを新しい証跡schemaへ更新
+- `examples/next-basic`を追加し、workspace dependencyでcore/reactを利用する最小Next.js consumerを用意
+- READMEにpublish gate、強み、制約、向かない用途、測定導線を追記
+- benchmark docsに類似ライブラリ比較軸、手動gate capture手順、証跡項目を追記
+- demo docsを現在のAdapterRegistry、estimateHeight、virtualItems APIに合わせて更新
+- TodoのPublic Npm Publish Gateで完了済みのREADME制約、examples、heterogeneous demo項目を反映
+
+## 変更ファイル
+
+- `TASKS.md`
+- `README.md`
+- `Todo.md`
+- `LOG.md`
+- `pnpm-workspace.yaml`
+- `pnpm-lock.yaml`
+- `apps/demo-next/app/benchmark/PlaceholderVirtualizer.tsx`
+- `apps/demo-next/app/benchmark/benchmarkScenarios.ts`
+- `apps/demo-next/app/benchmark/benchmarkScenarios.test.ts`
+- `docs/benchmarks.md`
+- `docs/demo.md`
+- `examples/next-basic/**`

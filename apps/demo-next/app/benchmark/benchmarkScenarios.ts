@@ -15,11 +15,17 @@ export type BenchmarkScenario = {
 }
 
 export type BenchmarkEvidence = {
+  cpuThrottle: string
+  dataset: BenchmarkScenarioId
+  heavyBlankFrameCount: number
+  heavyPlaceholderOnlyFrameCount: number
+  library: "hetero-virtual"
   measuredAt: string
   measurementQueue: number
   p95JsFrameTime: number
   renderedItems: number
   sampleCount: number
+  scenario: string
   scenarioId: BenchmarkScenarioId
   totalItems: number
   viewportShift: number
@@ -27,8 +33,17 @@ export type BenchmarkEvidence = {
 
 export type BenchmarkEvidenceResult = BenchmarkEvidence & {
   frameTimePassed: boolean
+  heavyBlankFramePassed: boolean
+  measurementQueuePassed: boolean
   viewportShiftPassed: boolean
 }
+
+export const BENCHMARK_THRESHOLDS = {
+  heavyBlankFrameCount: 0,
+  measurementQueue: 0,
+  p95JsFrameTime: 6,
+  viewportShift: 1,
+} as const
 
 export const BENCHMARK_SCENARIOS: readonly BenchmarkScenario[] = [
   {
@@ -123,7 +138,14 @@ export function evaluateBenchmarkEvidence(
   return {
     ...evidence,
     frameTimePassed:
-      evidence.sampleCount > 0 && evidence.p95JsFrameTime <= 6,
-    viewportShiftPassed: evidence.viewportShift < 1,
+      evidence.sampleCount > 0 &&
+      evidence.p95JsFrameTime <= BENCHMARK_THRESHOLDS.p95JsFrameTime,
+    heavyBlankFramePassed:
+      evidence.heavyBlankFrameCount <=
+      BENCHMARK_THRESHOLDS.heavyBlankFrameCount,
+    measurementQueuePassed:
+      evidence.measurementQueue <= BENCHMARK_THRESHOLDS.measurementQueue,
+    viewportShiftPassed:
+      evidence.viewportShift < BENCHMARK_THRESHOLDS.viewportShift,
   }
 }
