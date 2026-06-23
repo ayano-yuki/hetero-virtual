@@ -25,7 +25,7 @@ Incomplete p95 evidence:
 These files have useful stability data, but `sampleCount` is `0`, so they do
 not satisfy the p95 frame-time gate.
 
-## Remaining Browser Work
+## Follow-up Browser Work
 
-* Capture at least one React library comparison under the same browser and CPU
-  throttle conditions.
+* React library comparison evidence was captured later under
+  `evidence/2026-06-23/`.

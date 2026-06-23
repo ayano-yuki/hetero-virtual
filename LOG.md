@@ -468,3 +468,29 @@ Public Npm Publish GateのPPG-01実測に向けて、React Virtuoso、react-wind
 - `docs/virtualizer-comparison.md`
 - `evidence/comparisons/virtualizer-library-comparison.md`
 - `LOG.md`
+
+# React virtualizer比較証跡を保存
+
+Chrome CPU throttle 4xとlow-end 4ms budgetでReact Virtuoso、react-window、TanStack Virtualのfast scroll比較証跡を保存し、PPG-01を完了した。
+
+## 実装詳細
+
+- `evidence/2026-06-23/`に3ライブラリ分の比較JSONとREADMEを追加
+- React Virtuoso p95 `2.30ms`、react-window p95 `0.50ms`、TanStack Virtual p95 `4.50ms`を記録
+- 3件とも`sampleCount = 90`、queue `0`、blank frames `0`でPASS
+- `evidence/comparisons/virtualizer-library-comparison.md`を実測済み状態へ更新
+- `TASKS.md`のPPG-01と`Todo.md`のPublic Npm Publish Gate比較項目を完了状態へ更新
+- benchmark docsと既存evidence READMEの実測待ち表現を更新
+
+## 変更ファイル
+
+- `evidence/2026-06-23/README.md`
+- `evidence/2026-06-23/react-virtuoso-fast-scroll-4x.json`
+- `evidence/2026-06-23/react-window-fast-scroll-4x.json`
+- `evidence/2026-06-23/tanstack-virtual-fast-scroll-4x.json`
+- `evidence/2026-06-21/README.md`
+- `evidence/comparisons/virtualizer-library-comparison.md`
+- `TASKS.md`
+- `Todo.md`
+- `docs/benchmarks.md`
+- `LOG.md`

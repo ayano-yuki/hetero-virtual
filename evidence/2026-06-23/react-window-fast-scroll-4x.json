@@ -1,0 +1,20 @@
+{
+  "cpuThrottle": "4x external / 4ms budget",
+  "dataset": "plain-text-100k",
+  "heavyBlankFrameCount": 0,
+  "heavyPlaceholderOnlyFrameCount": 0,
+  "library": "react-window",
+  "measuredAt": "2026-06-23T14:49:10.968Z",
+  "measurementQueue": 0,
+  "p95JsFrameTime": 0.5,
+  "renderedItems": 36,
+  "sampleCount": 90,
+  "scenario": "react-window plain text fast scroll",
+  "scenarioId": "plain-text-100k",
+  "totalItems": 100000,
+  "viewportShift": 0,
+  "frameTimePassed": true,
+  "heavyBlankFramePassed": true,
+  "measurementQueuePassed": true,
+  "viewportShiftPassed": true
+}

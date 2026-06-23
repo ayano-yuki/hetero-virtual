@@ -1,0 +1,20 @@
+{
+  "cpuThrottle": "4x external / 4ms budget",
+  "dataset": "plain-text-100k",
+  "heavyBlankFrameCount": 0,
+  "heavyPlaceholderOnlyFrameCount": 0,
+  "library": "react-virtuoso",
+  "measuredAt": "2026-06-23T14:48:24.812Z",
+  "measurementQueue": 0,
+  "p95JsFrameTime": 2.300000011920929,
+  "renderedItems": 34,
+  "sampleCount": 90,
+  "scenario": "React Virtuoso plain text fast scroll",
+  "scenarioId": "plain-text-100k",
+  "totalItems": 100000,
+  "viewportShift": 0,
+  "frameTimePassed": true,
+  "heavyBlankFramePassed": true,
+  "measurementQueuePassed": true,
+  "viewportShiftPassed": true
+}

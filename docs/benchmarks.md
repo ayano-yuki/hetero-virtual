@@ -123,6 +123,5 @@ React/Next workspace until a Vue example is explicitly added.
    marking a gate task complete.
 
 For comparison evidence, repeat the fast-scroll capture in the **Library
-comparison** panel for React Virtuoso, react-window, and TanStack Virtual. Save
-each copied JSON alongside the hetero-virtual evidence before marking PPG-01
-complete.
+comparison** panel for React Virtuoso, react-window, and TanStack Virtual.
+Captured comparison evidence is stored under `evidence/2026-06-23/`.
