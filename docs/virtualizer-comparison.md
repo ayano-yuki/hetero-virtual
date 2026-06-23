@@ -43,3 +43,8 @@ The remaining publish-gate task is real browser evidence for at least one
 React comparison library under the same CPU throttle and scenario conditions.
 The recommended first comparison is React Virtuoso because it best matches the
 chat and complex-feed use case.
+
+The `/benchmark` page now includes a Library comparison panel for React
+Virtuoso, react-window, and TanStack Virtual. Capture those under the same
+plain-text fast-scroll scenario to complement the document-only
+vue-virtual-scroller comparison.

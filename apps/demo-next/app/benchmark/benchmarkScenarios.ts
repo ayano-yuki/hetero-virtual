@@ -19,7 +19,11 @@ export type BenchmarkEvidence = {
   dataset: BenchmarkScenarioId
   heavyBlankFrameCount: number
   heavyPlaceholderOnlyFrameCount: number
-  library: "hetero-virtual"
+  library:
+    | "hetero-virtual"
+    | "react-virtuoso"
+    | "react-window"
+    | "tanstack-virtual"
   measuredAt: string
   measurementQueue: number
   p95JsFrameTime: number

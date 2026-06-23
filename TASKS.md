@@ -16,10 +16,14 @@ clear constraints.
 - [x] Add a benchmark evidence shape that can identify the measured library
 - [x] Add comparison matrix for React Virtuoso, react-window,
   vue-virtual-scroller, TanStack Virtual, and hetero-virtual
+- [x] Add `/benchmark` React comparison runner for React Virtuoso,
+  react-window, and TanStack Virtual
 - [ ] Record real comparison evidence for at least one React library under the
   same browser and CPU throttle conditions
   - Pending. `evidence/2026-06-21/` contains hetero-virtual evidence only.
-  - Recommended first target: React Virtuoso.
+  - Use the Library comparison panel on `/benchmark`.
+  - Recommended first target: React Virtuoso, then react-window and
+    TanStack Virtual.
 
 ## PPG-02 Prepend Anchor Stability
 

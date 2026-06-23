@@ -366,6 +366,21 @@ h2 {
   scrollbar-gutter: stable;
 }
 
+.comparisonActions {
+  margin-bottom: 16px;
+}
+
+.comparisonVirtualRow {
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.comparisonVirtualRow .placeholderItem {
+  height: 100%;
+}
+
 .placeholderItem {
   align-items: center;
   justify-content: space-between;

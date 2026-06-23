@@ -103,6 +103,30 @@ describe("benchmark scenarios", () => {
     ).toBe(true)
   })
 
+  it("accepts React comparison library evidence", () => {
+    expect(
+      evaluateBenchmarkEvidence({
+        cpuThrottle: "4x external / 4ms budget",
+        dataset: "plain-text-100k",
+        heavyBlankFrameCount: 0,
+        heavyPlaceholderOnlyFrameCount: 0,
+        library: "react-virtuoso",
+        measuredAt: "2026-06-16T00:00:00.000Z",
+        measurementQueue: 0,
+        p95JsFrameTime: 5,
+        renderedItems: 24,
+        sampleCount: 90,
+        scenario: "React Virtuoso plain text fast scroll",
+        scenarioId: "plain-text-100k",
+        totalItems: 100_000,
+        viewportShift: 0,
+      }),
+    ).toMatchObject({
+      frameTimePassed: true,
+      heavyBlankFramePassed: true,
+    })
+  })
+
   it("evaluates queue and blank-frame gate diagnostics", () => {
     expect(
       evaluateBenchmarkEvidence({

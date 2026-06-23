@@ -93,8 +93,19 @@ Comparison axes:
 
 Use `docs/virtualizer-comparison.md` for the positioning matrix and
 `evidence/comparisons/virtualizer-library-comparison.md` for comparison
-evidence tracking. React Virtuoso is the recommended first real browser
-comparison because it is closest to the chat and complex-feed use case. Vue
+evidence tracking.
+
+The `/benchmark` page also includes a **Library comparison** panel for the
+React comparison set:
+
+* React Virtuoso
+* react-window
+* TanStack Virtual
+
+Use the library selector, run **Run fast scroll**, then copy the comparison
+evidence JSON. React Virtuoso is the recommended first real browser comparison
+because it is closest to the chat and complex-feed use case. react-window and
+TanStack Virtual provide fixed-list and headless-control baselines. Vue
 libraries are tracked as feature and reproduction comparisons in this
 React/Next workspace until a Vue example is explicitly added.
 
@@ -110,3 +121,8 @@ React/Next workspace until a Vue example is explicitly added.
 7. Wait for the queue to settle, then copy the evidence JSON.
 8. Record the copied JSON with the scenario name and browser details before
    marking a gate task complete.
+
+For comparison evidence, repeat the fast-scroll capture in the **Library
+comparison** panel for React Virtuoso, react-window, and TanStack Virtual. Save
+each copied JSON alongside the hetero-virtual evidence before marking PPG-01
+complete.

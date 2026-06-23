@@ -440,3 +440,31 @@ Public Npm Publish GateのPPG-01に向けて、React Virtuoso、react-window、v
 - `README.md`
 - `TASKS.md`
 - `LOG.md`
+
+# React virtualizer比較benchmarkを追加
+
+Public Npm Publish GateのPPG-01実測に向けて、React Virtuoso、react-window、TanStack Virtualを同一画面でfast scroll比較できるbenchmark runnerを追加した。
+
+## 実装詳細
+
+- demo-nextに`react-virtuoso`、`react-window`、`@tanstack/react-virtual`を追加
+- `/benchmark`にLibrary comparison panelを追加し、plain text 100k fast scrollの比較証跡JSONをコピーできるようにした
+- 比較証跡の`library`値としてReact Virtuoso、react-window、TanStack Virtualを受け付けるようにした
+- `TASKS.md`とbenchmark docsにReact比較runnerの使い方と、実測JSONがまだPPG-01完了条件であることを明記
+- evidence comparison docsに4ライブラリ以上で比較するための実測手順を追記
+- evidence evaluator testsにReact比較libraryの証跡判定を追加
+
+## 変更ファイル
+
+- `apps/demo-next/package.json`
+- `pnpm-lock.yaml`
+- `apps/demo-next/app/benchmark/VirtualizerComparison.tsx`
+- `apps/demo-next/app/benchmark/benchmarkScenarios.ts`
+- `apps/demo-next/app/benchmark/benchmarkScenarios.test.ts`
+- `apps/demo-next/app/benchmark/page.tsx`
+- `apps/demo-next/app/globals.css`
+- `TASKS.md`
+- `docs/benchmarks.md`
+- `docs/virtualizer-comparison.md`
+- `evidence/comparisons/virtualizer-library-comparison.md`
+- `LOG.md`

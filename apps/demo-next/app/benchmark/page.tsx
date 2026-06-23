@@ -1,6 +1,7 @@
 import Link from "next/link"
 
 import { PlaceholderVirtualizer } from "./PlaceholderVirtualizer"
+import { VirtualizerComparison } from "./VirtualizerComparison"
 
 const scenarios = [
   {
@@ -59,6 +60,8 @@ export default function BenchmarkPage() {
       </section>
 
       <PlaceholderVirtualizer />
+
+      <VirtualizerComparison />
 
       <section className="scenarioSection">
         <div className="sectionHeading">
