@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { FenwickTree } from "./FenwickTree"
+import { FenwickTree } from "@core/structures/FenwickTree"
 
 describe("FenwickTree", () => {
   it("computes prefix sums and totals", () => {

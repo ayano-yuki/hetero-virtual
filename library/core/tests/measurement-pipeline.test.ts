@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 
-import { AnchorManager, measureViewportShift } from "./AnchorManager"
-import { ChunkedHeightTree } from "./ChunkedHeightTree"
-import { MeasurementQueue } from "./MeasurementQueue"
+import { AnchorManager, measureViewportShift } from "@core/anchor/AnchorManager"
+import { MeasurementQueue } from "@core/measurement/MeasurementQueue"
+import { ChunkedHeightTree } from "@core/structures/ChunkedHeightTree"
 
 describe("measurement pipeline", () => {
   it("preserves the viewport anchor across multiple height corrections", () => {

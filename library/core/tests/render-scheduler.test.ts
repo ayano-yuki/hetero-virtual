@@ -6,7 +6,7 @@ import {
   computeScrollMode,
   getMaximumRenderLevel,
   type RenderLevel,
-} from "./RenderScheduler"
+} from "@core/scheduler/RenderScheduler"
 
 describe("RenderScheduler", () => {
   it("deduplicates tasks and keeps the highest target and priority", () => {

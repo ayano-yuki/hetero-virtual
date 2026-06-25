@@ -4,8 +4,8 @@ import {
   AnchorManager,
   measureViewportShift,
   type Anchor,
-} from "./AnchorManager"
-import { ChunkedHeightTree } from "./ChunkedHeightTree"
+} from "@core/anchor/AnchorManager"
+import { ChunkedHeightTree } from "@core/structures/ChunkedHeightTree"
 
 describe("AnchorManager", () => {
   it("captures the item holding the viewport position", () => {

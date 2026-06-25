@@ -1,4 +1,4 @@
-import type { RenderLevel } from "./RenderScheduler"
+import type { RenderLevel } from "@core/scheduler/RenderScheduler"
 
 export type AdapterLayoutContext = {
   viewportWidth: number

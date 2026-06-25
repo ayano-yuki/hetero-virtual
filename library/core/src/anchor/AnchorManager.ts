@@ -1,4 +1,4 @@
-import { ChunkedHeightTree } from "./ChunkedHeightTree"
+import { ChunkedHeightTree } from "@core/structures/ChunkedHeightTree"
 
 export type Anchor = {
   itemId: string

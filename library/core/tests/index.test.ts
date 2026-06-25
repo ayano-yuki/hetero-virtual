@@ -11,7 +11,7 @@ import {
   RangeCalculator,
   RenderScheduler,
   measureViewportShift,
-} from "./index"
+} from "@core/index"
 
 describe("@hetero-virtual/core", () => {
   it("exposes the core package entry points", () => {

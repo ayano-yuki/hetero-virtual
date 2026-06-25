@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { MeasurementQueue } from "./MeasurementQueue"
+import { MeasurementQueue } from "@core/measurement/MeasurementQueue"
 
 describe("MeasurementQueue", () => {
   it("deduplicates by id and keeps the latest measurement", () => {

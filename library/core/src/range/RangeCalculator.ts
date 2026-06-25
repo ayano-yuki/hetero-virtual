@@ -1,7 +1,7 @@
 import {
   ChunkedHeightTree,
   type HeightTreeMatch,
-} from "./ChunkedHeightTree"
+} from "@core/structures/ChunkedHeightTree"
 
 export type ScrollDirection = "up" | "down" | "none"
 

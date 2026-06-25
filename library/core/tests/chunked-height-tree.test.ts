@@ -4,7 +4,7 @@ import {
   ChunkedHeightTree,
   type HeightTreeItem,
   type HeightTreeMatch,
-} from "./ChunkedHeightTree"
+} from "@core/structures/ChunkedHeightTree"
 
 describe("ChunkedHeightTree", () => {
   it("appends, prepends, and resolves offsets across chunk boundaries", () => {

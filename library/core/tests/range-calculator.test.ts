@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import { ChunkedHeightTree } from "./ChunkedHeightTree"
-import { RangeCalculator } from "./RangeCalculator"
+import { RangeCalculator } from "@core/range/RangeCalculator"
+import { ChunkedHeightTree } from "@core/structures/ChunkedHeightTree"
 
 describe("RangeCalculator", () => {
   it("computes a pixel-based visible range", () => {

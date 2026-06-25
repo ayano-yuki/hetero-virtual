@@ -1,4 +1,4 @@
-import { FenwickTree } from "./FenwickTree"
+import { FenwickTree } from "@core/structures/FenwickTree"
 
 export type HeightTreeItem = {
   id: string

@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
     "allowJs": false,
+    "baseUrl": ".",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,
+    "paths": {
+      "@core/*": ["library/core/src/*"],
+      "@react/*": ["library/react/src/*"]
+    },
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,

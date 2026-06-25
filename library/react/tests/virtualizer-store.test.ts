@@ -1,7 +1,7 @@
 import { AdapterRegistry, type VirtualItemAdapter } from "@hetero-virtual/core"
 import { describe, expect, it, vi } from "vitest"
 
-import { VirtualizerStore } from "./VirtualizerStore"
+import { VirtualizerStore } from "@react/store/VirtualizerStore"
 
 type Item = {
   height: number

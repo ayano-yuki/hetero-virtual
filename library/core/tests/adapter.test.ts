@@ -4,7 +4,7 @@ import {
   AdapterRegistry,
   getRenderLevelName,
   type VirtualItemAdapter,
-} from "./Adapter"
+} from "@core/adapter/Adapter"
 
 type Item = {
   height: number

@@ -24,7 +24,7 @@ import {
   VirtualizerStore,
   type VirtualItem,
   type VirtualizerSnapshot,
-} from "./VirtualizerStore"
+} from "@react/store/VirtualizerStore"
 
 export type UseHeteroVirtualizerOptions<TItem> = {
   adapters: AdapterRegistry<TItem, ReactNode>

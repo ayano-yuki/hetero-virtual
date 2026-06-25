@@ -10,30 +10,30 @@ export {
   type MeasurementMode,
   type MeasurementTrigger,
   type VirtualItemAdapter,
-} from "./Adapter"
+} from "@core/adapter/Adapter"
 export {
   AnchorManager,
   measureViewportShift,
   type Anchor,
   type ViewportAnchorSnapshot,
-} from "./AnchorManager"
+} from "@core/anchor/AnchorManager"
 export {
   ChunkedHeightTree,
   type ChunkedHeightTreeOptions,
   type HeightTreeItem,
   type HeightTreeMatch,
-} from "./ChunkedHeightTree"
-export { FenwickTree } from "./FenwickTree"
+} from "@core/structures/ChunkedHeightTree"
+export { FenwickTree } from "@core/structures/FenwickTree"
 export {
   HeightEstimator,
   type HeightEstimatorOptions,
   type HeightEstimatorStats,
-} from "./HeightEstimator"
+} from "@core/estimator/HeightEstimator"
 export {
   MeasurementQueue,
   type Measurement,
   type MeasurementFlushOptions,
-} from "./MeasurementQueue"
+} from "@core/measurement/MeasurementQueue"
 export {
   RangeCalculator,
   type Overscan,
@@ -41,7 +41,7 @@ export {
   type ScrollDirection,
   type VisibleRange,
   type VisibleRangeInput,
-} from "./RangeCalculator"
+} from "@core/range/RangeCalculator"
 export {
   RenderScheduler,
   computeRenderPriority,
@@ -56,6 +56,6 @@ export {
   type ScrollMode,
   type ScrollModeInput,
   type ScrollModeOptions,
-} from "./RenderScheduler"
+} from "@core/scheduler/RenderScheduler"
 
 export const CORE_PACKAGE_NAME = "@hetero-virtual/core"

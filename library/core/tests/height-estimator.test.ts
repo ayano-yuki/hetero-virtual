@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { HeightEstimator } from "./HeightEstimator"
+import { HeightEstimator } from "@core/estimator/HeightEstimator"
 
 describe("HeightEstimator", () => {
   it("tracks independent bias by item type", () => {
