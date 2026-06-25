@@ -14,6 +14,7 @@ A jank-resistant virtualizer for heterogeneous, bidirectional, dynamic-height li
 ## Documentation
 
 * [Overview](documents/overview.md)
+* [Project Rules](documents/Rule.md)
 * [Concepts](documents/concepts.md)
 * [Architecture](documents/architecture.md)
 * [React API](documents/react-api.md)
@@ -79,7 +80,7 @@ Known constraints:
 * This is not intended for uniform fixed-height lists where simpler libraries
   are already excellent.
 
-Use `TASKS.md` for the publish-gate task split and
+Use `documents/Rule.md` for project rules and publish constraints, and
 `documents/benchmarks.md` for comparison and evidence capture instructions.
 Captured browser evidence is stored under `playground/evidence/`.
 
