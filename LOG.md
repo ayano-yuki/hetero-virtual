@@ -494,3 +494,19 @@ Chrome CPU throttle 4xとlow-end 4ms budgetでReact Virtuoso、react-window、Ta
 - `Todo.md`
 - `docs/benchmarks.md`
 - `LOG.md`
+
+# Public Npm Publish Gateを完了状態へ整理
+
+Public Npm Publish Gateの全PPGタスクとNorth Starの総合項目を、保存済み証跡に基づいて完了状態へ更新した。
+
+## 実装詳細
+
+- `TASKS.md`のステータスを`complete`へ更新
+- `Todo.md`のNorth Star総合項目を完了状態へ更新
+- `Not Now`の将来枠は意図的に未完のまま維持
+
+## 変更ファイル
+
+- `TASKS.md`
+- `Todo.md`
+- `LOG.md`

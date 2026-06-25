@@ -8,7 +8,7 @@ Status: experimental prototype
 
 ## North Star
 
-- [ ] Next.js 上で 50,000 件の text / markdown / image / chart / tool-result 混在リストを双方向スクロールできる
+- [x] Next.js 上で 50,000 件の text / markdown / image / chart / tool-result 混在リストを双方向スクロールできる
 - [x] prepend 時の viewport shift を 1px 未満に抑える
 - [x] 高さ再測定時の viewport shift を 1px 未満に抑える
 - [x] Chrome CPU throttle 4x で fast scroll 時の p95 JS frame time を 6ms 以下に抑える

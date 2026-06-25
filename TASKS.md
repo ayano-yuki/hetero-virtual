@@ -1,6 +1,6 @@
 # Public Npm Publish Gate Tasks
 
-Status: in progress
+Status: complete
 
 This file tracks publish-gate execution separately from `Todo.md`. The goal is
 not to publish to npm yet. The goal is to make the project reviewable beside
