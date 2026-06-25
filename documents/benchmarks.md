@@ -51,7 +51,7 @@ Use **Copy evidence JSON** after the scenario settles. The copied record
 includes the dataset ID, item count, timestamp, throttle label, live metrics,
 and pass/fail results.
 
-Captured evidence is stored in dated folders under `evidence/`. Files ending
+Captured evidence is stored in dated folders under `playground/evidence/`. Files ending
 in `-incomplete.json` are useful stability records, but they are not valid p95
 frame-time evidence when `sampleCount` is `0`.
 
@@ -91,8 +91,8 @@ Comparison axes:
 * heavy item hydration while scrolling
 * reproducible evidence under the same browser and CPU throttle conditions
 
-Use `docs/virtualizer-comparison.md` for the positioning matrix and
-`evidence/comparisons/virtualizer-library-comparison.md` for comparison
+Use `documents/virtualizer-comparison.md` for the positioning matrix and
+`playground/evidence/comparisons/virtualizer-library-comparison.md` for comparison
 evidence tracking.
 
 The `/benchmark` page also includes a **Library comparison** panel for the
@@ -103,11 +103,10 @@ React comparison set:
 * TanStack Virtual
 
 Use the library selector, run **Run fast scroll**, then copy the comparison
-evidence JSON. React Virtuoso is the recommended first real browser comparison
-because it is closest to the chat and complex-feed use case. react-window and
-TanStack Virtual provide fixed-list and headless-control baselines. Vue
-libraries are tracked as feature and reproduction comparisons in this
-React/Next workspace until a Vue example is explicitly added.
+evidence JSON. Captured React Virtuoso, react-window, and TanStack Virtual
+evidence is stored under `playground/evidence/2026-06-23/`. Vue libraries are
+tracked as feature and reproduction comparisons in this React/Next workspace
+until a Vue example is explicitly added.
 
 ## Manual Gate Capture
 
@@ -124,4 +123,4 @@ React/Next workspace until a Vue example is explicitly added.
 
 For comparison evidence, repeat the fast-scroll capture in the **Library
 comparison** panel for React Virtuoso, react-window, and TanStack Virtual.
-Captured comparison evidence is stored under `evidence/2026-06-23/`.
+Captured comparison evidence is stored under `playground/evidence/2026-06-23/`.

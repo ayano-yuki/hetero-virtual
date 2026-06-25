@@ -9,8 +9,8 @@ settled.
 Use this layout:
 
 ```txt
-evidence/YYYY-MM-DD/<dataset-or-scenario>.json
-evidence/YYYY-MM-DD/README.md
+playground/evidence/YYYY-MM-DD/<dataset-or-scenario>.json
+playground/evidence/YYYY-MM-DD/README.md
 ```
 
 Use `*-incomplete.json` when a scenario captured useful stability data but is

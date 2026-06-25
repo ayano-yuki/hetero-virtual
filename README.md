@@ -13,15 +13,15 @@ A jank-resistant virtualizer for heterogeneous, bidirectional, dynamic-height li
 
 ## Documentation
 
-* [Overview](docs/overview.md)
-* [Concepts](docs/concepts.md)
-* [Architecture](docs/architecture.md)
-* [React API](docs/react-api.md)
-* [Demo & Examples](docs/demo.md)
-* [Benchmarks & Evidence](docs/benchmarks.md)
-* [Virtualizer Comparison](docs/virtualizer-comparison.md)
-* [Private Package Trial](docs/private-package-trial.md)
-* [Strategy](docs/strategy.md)
+* [Overview](documents/overview.md)
+* [Concepts](documents/concepts.md)
+* [Architecture](documents/architecture.md)
+* [React API](documents/react-api.md)
+* [Demo & Examples](documents/demo.md)
+* [Benchmarks & Evidence](documents/benchmarks.md)
+* [Virtualizer Comparison](documents/virtualizer-comparison.md)
+* [Private Package Trial](documents/private-package-trial.md)
+* [Strategy](documents/strategy.md)
 
 ## Quick start
 
@@ -80,20 +80,23 @@ Known constraints:
   are already excellent.
 
 Use `TASKS.md` for the publish-gate task split and
-`docs/benchmarks.md` for comparison and evidence capture instructions.
-Captured browser evidence is stored under `evidence/`.
+`documents/benchmarks.md` for comparison and evidence capture instructions.
+Captured browser evidence is stored under `playground/evidence/`.
 
 ## Workspace
 
 ```txt
-apps/
-  demo-next/   Next.js demo and benchmark pages
-  private-trial/ workspace package consumption trial
-examples/
-  next-basic/  minimal external-consumer example
-packages/
-  core/        Framework-independent virtualizer core
-  react/       React and DOM integration
+library/
+  core/       Framework-independent virtualizer core
+  react/      React and DOM integration
+demo/
+  next-basic/ Minimal external-consumer Next.js example
+playground/
+  benchmark/  Next.js benchmark and evidence suite
+  private-trial/ Workspace package consumption trial
+  evidence/   Browser-captured benchmark evidence
+documents/
+  *.md        Project documentation
 ```
 
 Useful commands:

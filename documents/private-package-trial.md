@@ -5,7 +5,7 @@ separate workspace package before considering public npm polish.
 
 ## Trial Project
 
-`apps/private-trial` is a private workspace package that depends on:
+`playground/private-trial` is a private workspace package that depends on:
 
 ```json
 {

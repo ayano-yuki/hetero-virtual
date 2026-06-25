@@ -28,4 +28,4 @@ not satisfy the p95 frame-time gate.
 ## Follow-up Browser Work
 
 * React library comparison evidence was captured later under
-  `evidence/2026-06-23/`.
+  `playground/evidence/2026-06-23/`.

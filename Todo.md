@@ -29,11 +29,14 @@ Status: experimental prototype
 初期構成:
 
 ```txt
-apps/
-  demo-next/
-packages/
+playground/
+  benchmark/
+library/
   core/
   react/
+demo/
+  next-basic/
+documents/
 README.md
 Todo.md
 pnpm-workspace.yaml

@@ -18,14 +18,14 @@ importers:
         specifier: ^3.2.1
         version: 3.2.6(@types/node@22.19.20)
 
-  apps/demo-next:
+  playground/benchmark:
     dependencies:
       '@hetero-virtual/core':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../library/core
       '@hetero-virtual/react':
         specifier: workspace:*
-        version: link:../../packages/react
+        version: link:../../library/react
       '@tanstack/react-virtual':
         specifier: ^3.14.3
         version: 3.14.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -55,14 +55,14 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
-  apps/private-trial:
+  playground/private-trial:
     dependencies:
       '@hetero-virtual/core':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../library/core
       '@hetero-virtual/react':
         specifier: workspace:*
-        version: link:../../packages/react
+        version: link:../../library/react
       react:
         specifier: ^19.1.0
         version: 19.2.7
@@ -77,14 +77,14 @@ importers:
         specifier: ^3.2.1
         version: 3.2.6(@types/node@22.19.20)
 
-  examples/next-basic:
+  demo/next-basic:
     dependencies:
       '@hetero-virtual/core':
         specifier: workspace:*
-        version: link:../../packages/core
+        version: link:../../library/core
       '@hetero-virtual/react':
         specifier: workspace:*
-        version: link:../../packages/react
+        version: link:../../library/react
       next:
         specifier: ^15.3.3
         version: 15.5.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -105,7 +105,7 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
-  packages/core:
+  library/core:
     devDependencies:
       typescript:
         specifier: ^5.8.3
@@ -114,7 +114,7 @@ importers:
         specifier: ^3.2.1
         version: 3.2.6(@types/node@22.19.20)
 
-  packages/react:
+  library/react:
     dependencies:
       '@hetero-virtual/core':
         specifier: workspace:*

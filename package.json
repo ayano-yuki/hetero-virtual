@@ -4,8 +4,8 @@
   "private": true,
   "packageManager": "pnpm@10.32.1",
   "scripts": {
-    "build": "pnpm --filter demo-next build",
-    "dev": "pnpm --filter demo-next dev",
+    "build": "pnpm --filter benchmark-playground build",
+    "dev": "pnpm --filter benchmark-playground dev",
     "test": "pnpm --recursive --if-present test",
     "typecheck": "pnpm --recursive --if-present typecheck"
   },

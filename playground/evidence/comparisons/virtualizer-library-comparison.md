@@ -6,11 +6,11 @@ Status: comparison matrix and React comparison evidence captured.
 
 | Category | Library | Evidence status |
 | --- | --- | --- |
-| React chat / complex feeds | React Virtuoso | Captured: `evidence/2026-06-23/react-virtuoso-fast-scroll-4x.json` |
-| React fixed / simple lists | react-window | Captured: `evidence/2026-06-23/react-window-fast-scroll-4x.json` |
+| React chat / complex feeds | React Virtuoso | Captured: `playground/evidence/2026-06-23/react-virtuoso-fast-scroll-4x.json` |
+| React fixed / simple lists | react-window | Captured: `playground/evidence/2026-06-23/react-window-fast-scroll-4x.json` |
 | Vue 2/3 | vue-virtual-scroller | Document comparison only |
-| Framework-agnostic / custom layouts | TanStack Virtual | Captured: `evidence/2026-06-23/tanstack-virtual-fast-scroll-4x.json` |
-| Heterogeneous heavy feeds | hetero-virtual | Captured under `evidence/2026-06-21/` |
+| Framework-agnostic / custom layouts | TanStack Virtual | Captured: `playground/evidence/2026-06-23/tanstack-virtual-fast-scroll-4x.json` |
+| Heterogeneous heavy feeds | hetero-virtual | Captured under `playground/evidence/2026-06-21/` |
 
 ## Real Browser Comparison
 

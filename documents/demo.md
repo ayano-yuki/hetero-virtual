@@ -4,8 +4,8 @@
 
 This repository has two different consumer surfaces:
 
-* `apps/demo-next` is the benchmark and evidence suite.
-* `examples/next-basic` is the minimal external-consumer example.
+* `playground/benchmark` is the benchmark and evidence suite.
+* `demo/next-basic` is the minimal external-consumer example.
 
 Use the demo to validate performance and anchor behavior. Use the example to
 understand the smallest React integration shape.

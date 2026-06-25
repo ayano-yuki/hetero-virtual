@@ -34,17 +34,12 @@ product shapes.
   lists.
 * `hetero-virtual` does not cover Vue integration today.
 * `hetero-virtual` has stronger built-in evidence capture than a normal demo,
-  but still needs real comparison runs before public npm positioning is
-  credible.
+  including saved React comparison evidence for the publish-gate baseline.
 
-## Evidence Still Needed
+## Evidence Status
 
-The remaining publish-gate task is real browser evidence for at least one
-React comparison library under the same CPU throttle and scenario conditions.
-The recommended first comparison is React Virtuoso because it best matches the
-chat and complex-feed use case.
-
-The `/benchmark` page now includes a Library comparison panel for React
-Virtuoso, react-window, and TanStack Virtual. Capture those under the same
-plain-text fast-scroll scenario to complement the document-only
-vue-virtual-scroller comparison.
+The `/benchmark` page includes a Library comparison panel for React Virtuoso,
+react-window, and TanStack Virtual. Matching Chrome CPU throttle 4x evidence
+has been captured under `playground/evidence/2026-06-23/`. The
+vue-virtual-scroller comparison remains document-only in this React/Next
+workspace.
